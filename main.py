@@ -6,7 +6,7 @@ Spot Finder!
 Project Spot 2025
 
 Add your name below once you get github working \/
-Keagan,Ayman Faruqi
+Keagan,Ayman Faruqi, Lisa
 
 
 ENSURE API keys are never exposed to the front. Keep keys in seperate files and make sure the file is ignored in git. 
