@@ -1,3 +1,6 @@
+import json
+import os
+
 class Location:
     def __init__(self, address: str, coordinates: dict):
         self._address = address
@@ -51,3 +54,30 @@ class Location:
                 f"Temperature: {self._temperature}\n"
                 f"Precipitation: {self._precipitation}\n"
                 f"Current Time: {self._currentTime}")
+    
+    def jsonify(self): #Adds this location to the json file
+        filePath = f"{os.path.join(os.path.dirname(os.path.dirname(__file__)), "json", "cachedLocations.json")}"
+
+        data =  {"address" : self._address, "Coordinates" : self._coordinates, "Temperature" : self._temperature, "Precipitation" : self._precipitation, "Current Time" : self._currentTime}
+        
+        
+
+        try:
+            currentLocations = [data]
+            with open(filePath, "r") as file:
+                for location in json.load(file):
+                    print(location)
+                    currentLocations.append(location)
+                file.close()
+            input() #TODO Error occuring here which deletes data from oldest json
+            
+            with open(filePath, "w") as file:
+                jsonObject = json.dumps(currentLocations, indent=4)
+                file.write(jsonObject)
+
+        except FileNotFoundError:
+            with open(filePath, "w") as file:
+                jsonObject = json.dumps(data, indent=4)
+                file.write(jsonObject)
+ 
+        file.close

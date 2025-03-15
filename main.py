@@ -94,6 +94,7 @@ if __name__ == "__main__":
                 print(currentLocation)
                 input("\nEnter to continue")
                 clearConsole()
+                currentLocation.jsonify()
             case "2":
                 clearConsole()
                 print("Past places")
