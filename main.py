@@ -22,10 +22,22 @@ load_dotenv("keys.env") #Loads keys from keys.env | Keys can be accessed with os
 
 clearConsole = lambda: os.system('cls') #Lambda to clear console, call like clearConsole()
 
-def getLocation(address: str) -> Location: #This function uses Google Maps API to get coordinates of location. Can be used for other APIs
+def getLocation() -> Location: #This function uses Google Maps API to get coordinates of location. Can be used for other APIs
     #This stuff below basically formats the user input in a way to be inserted into the request
     #The address should be formatted like: address=+1600+Jordna+Lane,+Chicago,+Illinois
     #Documents: https://developers.google.com/maps/documentation/geocoding/requests-geocoding#json
+
+    #Start of user input
+    userSearchLocation = input("Please enter a city and or state ('q' to return): ")
+
+    #Sentinel Keyword
+    if userSearchLocation == ('q' or 'Q'):
+        return
+
+    print("Loading...")
+
+    #Creates location object
+    address = userSearchLocation
     address = address.lower()
     address = address.split(',')
 
@@ -60,26 +72,40 @@ def getWeather(location: Location): #Gets weather of location from coordinates
 
 if __name__ == "__main__":
     while True:
-        #Start of user input
-        userSearchLocation = input("Please enter a city and or state ('q' to quit): ")
-
-        #Sentinel Keyword
-        if userSearchLocation == ('q' or 'Q'):
-            break
-
-        #Creates location object
-        currentLocation = (getLocation(userSearchLocation))
-        
-        if currentLocation == None:
-            print("Not a valid location.")
-            continue
-        
-        #Gets weather for the location
-        getWeather(currentLocation)
         clearConsole()
-        print(currentLocation)
-        input("\nEnter to continue")
-        clearConsole()
+
+        print("\n🚀 Welcome to Spot Finder! 🚀\n")
+        print("Please Choose What You Would Like To Do:\n")
+        print("1️⃣  Search for a location")
+        print("2️⃣  View past locations")
+        print("3️⃣  Quit")
+
+        match input(""): #Logic to process users input
+            case "1":
+                clearConsole()
+                currentLocation = getLocation()
+
+                if currentLocation == None: #If the user quits the search function, go to next iteration
+                    continue
+
+                #Gets weather for the location
+                getWeather(currentLocation)
+                clearConsole()
+                print(currentLocation)
+                input("\nEnter to continue")
+                clearConsole()
+            case "2":
+                clearConsole()
+                print("Past places")
+                input("Press enter to continue")
+            case "3":
+                clearConsole()
+                print("Thank you for using Spot Finder!")
+                break
+            case _:
+                clearConsole()
+                print("This is not a valid option.")
+                input("Press enter to continue")
 
 print("End of program")
 
