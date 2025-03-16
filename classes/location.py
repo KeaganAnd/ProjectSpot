@@ -2,13 +2,13 @@ import json
 import os
 
 class Location:
-    def __init__(self, address: str, coordinates: dict):
+    def __init__(self, address: str, coordinates: dict, temperature: float = 0.0, precipitation: float = 0.0, currentTime: str = "", population: int = 0):
         self._address = address
         self._coordinates = [coordinates["lat"], coordinates["lng"]]  # In lat/long format
-        self._temperature = 0.0
-        self._precipitation = 0.0
-        self._currentTime = ""
-        self._population = 0
+        self._temperature = temperature
+        self._precipitation = precipitation
+        self._currentTime = currentTime
+        self._population = population
 
     # Getters
     def getAddress(self) -> str:
@@ -65,19 +65,25 @@ class Location:
         try:
             currentLocations = [data]
             with open(filePath, "r") as file:
-                for location in json.load(file):
-                    print(location)
-                    currentLocations.append(location)
-                file.close()
-            input() #TODO Error occuring here which deletes data from oldest json
+                loadedFile = json.load(file)
+
+                for location in loadedFile:
+                    if location["Coordinates"] != self._coordinates:
+                        currentLocations.append(location)
             
+            if len(currentLocations) > 10:
+                currentLocations.pop(10) #Only allows 10 locations to be saved
+
             with open(filePath, "w") as file:
                 jsonObject = json.dumps(currentLocations, indent=4)
                 file.write(jsonObject)
 
         except FileNotFoundError:
             with open(filePath, "w") as file:
-                jsonObject = json.dumps(data, indent=4)
+                jsonObject = json.dumps([data], indent=4)
                 file.write(jsonObject)
  
-        file.close
+        file.close()
+
+def loadObjectFromJson(location : dict): #This function just turns a dict into a Location object used in the get recent locations function in main.py
+    return(Location(location["address"],{"lat" : location["Coordinates"][0],"lng" : location["Coordinates"][1]},location["Temperature"],location["Precipitation"],location["Current Time"]))

@@ -15,7 +15,8 @@ We do not want keys leaked on Github
 import requests
 from dotenv import load_dotenv, dotenv_values
 import os
-from classes.location import Location 
+from classes.location import Location, loadObjectFromJson
+import json
 
 
 load_dotenv("keys.env") #Loads keys from keys.env | Keys can be accessed with os.genenv("KEYNAME")
@@ -59,8 +60,6 @@ def getLocation() -> Location: #This function uses Google Maps API to get coordi
         print("API is not responding")
         return
 
-
-
 def getWeather(location: Location): #Gets weather of location from coordinates
     #Uses open-meto for weather: https://open-meteo.com/en/docs
     coordinates = location.getCoordinates()
@@ -69,6 +68,41 @@ def getWeather(location: Location): #Gets weather of location from coordinates
     location.setPrecipitation(response.json()["current"]["precipitation"])
     location.setCurrentTime(response.json()["current"]["time"][-5:])
 
+def viewPreviousLocations(): #Function to get recent locations
+    filePath = "json/cachedLocations.json"
+    try: #Opens json file, parses it, and generates the form for the user to select a location
+        clearConsole()
+        print("Recent Searches: \n---------------------\n\n")
+        with open(filePath, "r") as file:
+            loadedFile = json.load(file)
+            
+            emojiList = ["0️⃣","1️⃣","2️⃣","3️⃣","4️⃣","5️⃣","6️⃣","7️⃣","8️⃣","9️⃣"]
+
+            for i, location in enumerate(loadedFile):
+                print(f"{emojiList[i]}: {location["address"]}")
+            try:
+                userInput = int(input())
+            except ValueError: #This occurs if the user does not enter an integer in the input
+                clearConsole()
+                print("Please enter a number")
+                input()
+                file.close()
+                viewPreviousLocations()
+            if userInput >= 0 and userInput < len(loadedFile): #Checks if user input is between 0 and the amount of locations
+                clearConsole()
+                print(loadObjectFromJson(loadedFile[userInput]))
+                file.close()
+            else:
+                clearConsole()
+                print("Please select a valid option")
+                input()
+                file.close()
+                viewPreviousLocations()
+
+
+    except FileNotFoundError: #This occurs if the user has not searched yet
+        clearConsole()
+        print("Nothing here yet!")
 
 if __name__ == "__main__":
     while True:
@@ -81,7 +115,7 @@ if __name__ == "__main__":
         print("3️⃣  Quit")
 
         match input(""): #Logic to process users input
-            case "1":
+            case "1":#Search locations
                 clearConsole()
                 currentLocation = getLocation()
 
@@ -95,15 +129,15 @@ if __name__ == "__main__":
                 input("\nEnter to continue")
                 clearConsole()
                 currentLocation.jsonify()
-            case "2":
+            case "2": #Get most recent locations
                 clearConsole()
-                print("Past places")
+                viewPreviousLocations()
                 input("Press enter to continue")
-            case "3":
+            case "3": #Quit App
                 clearConsole()
                 print("Thank you for using Spot Finder!")
                 break
-            case _:
+            case _: #Any other input
                 clearConsole()
                 print("This is not a valid option.")
                 input("Press enter to continue")
