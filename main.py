@@ -11,7 +11,7 @@ Keagan, Ayman Faruqi, LisaLin
 ENSURE API keys are never exposed to the front. Keep keys in seperate files and make sure the file is ignored in git. 
 We do not want keys leaked on Github
 '''
-
+  
 import requests
 from dotenv import load_dotenv, dotenv_values
 import os
