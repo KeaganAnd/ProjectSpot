@@ -1,11 +1,12 @@
 '''
 Spot Finder!
+Pre-Release
 
 3/14/2025
 
 Project Spot 2025
 
-Keagan, Ayman Faruqi, LisaLin
+Keagan, Ayman Faruqi, Lisa Lin, Sameeh
 
 
 ENSURE API keys are never exposed to the front. Keep keys in seperate files and make sure the file is ignored in git. 
@@ -17,16 +18,24 @@ from dotenv import load_dotenv, dotenv_values
 import os
 from classes.location import Location, loadObjectFromJson
 import json
+import sys
+
+'''UI Component imports'''
+from PyQt6.QtWidgets import *
+from classes.ui.mainwindow import MainWindow
 
 
 load_dotenv("keys.env") #Loads keys from keys.env | Keys can be accessed with os.genenv("KEYNAME")
 
 clearConsole = lambda: os.system('cls') #Lambda to clear console, call like clearConsole()
 
-def getLocation() -> Location: #This function uses Google Maps API to get coordinates of location. Can be used for other APIs
-    #This stuff below basically formats the user input in a way to be inserted into the request
-    #The address should be formatted like: address=+1600+Jordna+Lane,+Chicago,+Illinois
-    #Documents: https://developers.google.com/maps/documentation/geocoding/requests-geocoding#json
+
+
+def getLocation() -> Location: 
+    '''This function uses Google Maps API to get coordinates of location. Can be used for other APIs
+    This stuff below basically formats the user input in a way to be inserted into the request
+    The address should be formatted like: address=+1600+Jordna+Lane,+Chicago,+Illinois
+    Documents: https://developers.google.com/maps/documentation/geocoding/requests-geocoding#json'''
 
     #Start of user input
     userSearchLocation = input("Please enter a city and or state ('q' to return): ")
@@ -105,42 +114,48 @@ def viewPreviousLocations(): #Function to get recent locations
         print("Nothing here yet!")
 
 if __name__ == "__main__":
-    while True:
-        clearConsole()
+    app = QApplication(sys.argv)
 
-        print("\n🚀 Welcome to Spot Finder! 🚀\n")
-        print("Please Choose What You Would Like To Do:\n")
-        print("1️⃣  Search for a location")
-        print("2️⃣  View past locations")
-        print("3️⃣  Quit")
+    window = MainWindow()
+    window.show()
 
-        match input(""): #Logic to process users input
-            case "1":#Search locations
-                clearConsole()
-                currentLocation = getLocation()
+    app.exec()
+    # while True:
+    #     clearConsole()
 
-                if currentLocation == None: #If the user quits the search function, go to next iteration
-                    continue
+    #     print("\n🚀 Welcome to Spot Finder! 🚀\n")
+    #     print("Please Choose What You Would Like To Do:\n")
+    #     print("1️⃣  Search for a location")
+    #     print("2️⃣  View past locations")
+    #     print("3️⃣  Quit")
 
-                #Gets weather for the location
-                getWeather(currentLocation)
-                clearConsole()
-                print(currentLocation)
-                input("\nEnter to continue")
-                clearConsole()
-                currentLocation.jsonify()
-            case "2": #Get most recent locations
-                clearConsole()
-                viewPreviousLocations()
-                input("Press enter to continue")
-            case "3": #Quit App
-                clearConsole()
-                print("Thank you for using Spot Finder!")
-                break
-            case _: #Any other input
-                clearConsole()
-                print("This is not a valid option.")
-                input("Press enter to continue")
+    #     match input(""): #Logic to process users input
+    #         case "1":#Search locations
+    #             clearConsole()
+    #             currentLocation = getLocation()
+
+    #             if currentLocation == None: #If the user quits the search function, go to next iteration
+    #                 continue
+
+    #             #Gets weather for the location
+    #             getWeather(currentLocation)
+    #             clearConsole()
+    #             print(currentLocation)
+    #             input("\nEnter to continue")
+    #             clearConsole()
+    #             currentLocation.jsonify()
+    #         case "2": #Get most recent locations
+    #             clearConsole()
+    #             viewPreviousLocations()
+    #             input("Press enter to continue")
+    #         case "3": #Quit App
+    #             clearConsole()
+    #             print("Thank you for using Spot Finder!")
+    #             break
+    #         case _: #Any other input
+    #             clearConsole()
+    #             print("This is not a valid option.")
+    #             input("Press enter to continue")
 
 print("End of program")
 

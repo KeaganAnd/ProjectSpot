@@ -56,7 +56,7 @@ class Location:
                 f"Current Time: {self._currentTime}")
     
     def jsonify(self): #Adds this location to the json file
-        filePath = f"{os.path.join(os.path.dirname(os.path.dirname(__file__)), "json", "cachedLocations.json")}"
+        filePath = f"{os.path.join(os.path.dirname(os.path.dirname(__file__)), "cachedLocations.json")}"
 
         data =  {"address" : self._address, "Coordinates" : self._coordinates, "Temperature" : self._temperature, "Precipitation" : self._precipitation, "Current Time" : self._currentTime}
         
