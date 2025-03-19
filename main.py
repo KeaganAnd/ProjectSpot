@@ -17,6 +17,7 @@ import requests
 from dotenv import load_dotenv, dotenv_values
 import os
 from classes.location import Location, loadObjectFromJson
+from classes.ui.stylesheet import returnStyleSheet
 import json
 import sys
 
@@ -115,6 +116,7 @@ def viewPreviousLocations(): #Function to get recent locations
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
+    app.setStyleSheet(returnStyleSheet())
 
     window = MainWindow()
     window.show()
