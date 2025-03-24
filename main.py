@@ -32,18 +32,16 @@ clearConsole = lambda: os.system('cls') #Lambda to clear console, call like clea
 
 
 
-def getLocation() -> Location: 
+def getLocation(location: str) -> Location: 
     '''This function uses Google Maps API to get coordinates of location. Can be used for other APIs
     This stuff below basically formats the user input in a way to be inserted into the request
     The address should be formatted like: address=+1600+Jordna+Lane,+Chicago,+Illinois
     Documents: https://developers.google.com/maps/documentation/geocoding/requests-geocoding#json'''
 
     #Start of user input
-    userSearchLocation = input("Please enter a city and or state ('q' to return): ")
+    userSearchLocation = location
 
-    #Sentinel Keyword
-    if userSearchLocation == ('q' or 'Q'):
-        return
+    
 
     print("Loading...")
 
@@ -79,7 +77,7 @@ def getWeather(location: Location): #Gets weather of location from coordinates
     location.setCurrentTime(response.json()["current"]["time"][-5:])
 
 def viewPreviousLocations(): #Function to get recent locations
-    filePath = "json/cachedLocations.json"
+    filePath = "cachedLocations.json"
     try: #Opens json file, parses it, and generates the form for the user to select a location
         clearConsole()
         print("Recent Searches: \n---------------------\n\n")
@@ -122,42 +120,7 @@ if __name__ == "__main__":
     window.show()
 
     app.exec()
-    # while True:
-    #     clearConsole()
 
-    #     print("\n🚀 Welcome to Spot Finder! 🚀\n")
-    #     print("Please Choose What You Would Like To Do:\n")
-    #     print("1️⃣  Search for a location")
-    #     print("2️⃣  View past locations")
-    #     print("3️⃣  Quit")
-
-    #     match input(""): #Logic to process users input
-    #         case "1":#Search locations
-    #             clearConsole()
-    #             currentLocation = getLocation()
-
-    #             if currentLocation == None: #If the user quits the search function, go to next iteration
-    #                 continue
-
-    #             #Gets weather for the location
-    #             getWeather(currentLocation)
-    #             clearConsole()
-    #             print(currentLocation)
-    #             input("\nEnter to continue")
-    #             clearConsole()
-    #             currentLocation.jsonify()
-    #         case "2": #Get most recent locations
-    #             clearConsole()
-    #             viewPreviousLocations()
-    #             input("Press enter to continue")
-    #         case "3": #Quit App
-    #             clearConsole()
-    #             print("Thank you for using Spot Finder!")
-    #             break
-    #         case _: #Any other input
-    #             clearConsole()
-    #             print("This is not a valid option.")
-    #             input("Press enter to continue")
 
 print("End of program")
 

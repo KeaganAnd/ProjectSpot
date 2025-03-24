@@ -1,0 +1,1 @@
+sudo python -m PyQtInspect --direct --qt-support=pyqt6  --file main.py 
