@@ -77,7 +77,33 @@ class MainWindow(QMainWindow):
         mainLayout.setStretch(1, 1)
         
         #!Location Page
-        self.secondPage = QWidget()
+        self.locationPage = QWidget()
+        self.locationMainLayout = QVBoxLayout()
+        self.locationPage.setLayout(self.locationMainLayout)
+
+        #Header section
+        self.header = QGroupBox()
+        self.locationMainLayout.addWidget(self.header)
+        self.header.setMaximumHeight(60)
+
+        self.headerLayout = QHBoxLayout(self.header)
+        self.homeButton = QPushButton("Home")
+        self.searchBar2 = QLineEdit()
+        self.headerLayout.addWidget(self.homeButton)
+        self.headerLayout.addWidget(self.searchBar2)
+        self.headerLayout.setAlignment(Qt.AlignmentFlag.AlignTop)
+        self.headerLayout.setAlignment(Qt.AlignmentFlag.AlignVCenter)
+        
+        #Body
+        self.locationHead = QGroupBox()
+        self.locationHeadLayout = QVBoxLayout()
+        self.locationHead.setLayout(self.locationHeadLayout)
+        self.locationMainLayout.addWidget(self.locationHead)
+
+        self.locationName = QLabel("Location Name")
+        self.locationHeadLayout.addWidget(self.locationName)
+        self.locationHeadLayout.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignHCenter)
+        self.locationName.setProperty("class", "header1")
 
         
 
@@ -87,7 +113,7 @@ class MainWindow(QMainWindow):
         
         # Add pages to stacked widget
         self.stacked_widget.addWidget(centralWidget)  # First page
-        self.stacked_widget.addWidget(self.secondPage)  # Second page
+        self.stacked_widget.addWidget(self.locationPage)  # Second page
 
 
         # Default page to show
@@ -96,13 +122,15 @@ class MainWindow(QMainWindow):
     def keyPressEvent(self, event):
         """Handle key press events."""
         if event.key() == Qt.Key.Key_Return:  # Check if the Enter key was pressed
+            print("Return")
             if len(self.searchBar.text()) > 0:
-                from main import getLocation
-                print(getLocation(self.searchBar.text()))
                 self.switch_to_second_page()  # Switch to the second page if text is entered
 
     def switch_to_second_page(self):
         """Switch to the second page in the stacked widget."""
-        self.stacked_widget.setCurrentWidget(self.secondPage)
+        from main import getLocation
+        location = getLocation(self.searchBar.text())
+        self.stacked_widget.setCurrentWidget(self.locationPage)
+        self.locationName.setText(location.getAddress())
 
 
