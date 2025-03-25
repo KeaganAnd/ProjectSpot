@@ -62,8 +62,12 @@ def getLocation(location: str) -> Location:
     
     #Picks data from the json and creates a Location object
     if response.status_code == 200:
-        results = response.json()["results"][0]
-        return(Location(address=results["formatted_address"],coordinates=results["geometry"]["location"]))
+        if len(response.json()["results"]) > 0:
+            results = response.json()["results"][0]
+            
+            return(Location(address=results["formatted_address"],coordinates=results["geometry"]["location"]))
+        else:
+            return(Location(address="N/A"))
     else:
         print("API is not responding")
         return

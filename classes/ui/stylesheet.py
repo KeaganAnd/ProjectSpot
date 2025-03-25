@@ -7,9 +7,18 @@ def returnStyleSheet():
        margin: 0px 0px 0px 0px;
        padding: 0px 0px 0px 0px;
        font-family: Times New Roman;
-           
-       
        }  
+[class="homeButton"] {
+       font-family: Times New Roman;
+       font-size: 60px;
+       font-weight: bold;
+       background: none;
+       border: none;
+       text-align: left;
+       }
+[class="homeButton"]:hover {
+       color: #A5D6A7;
+       }
 [id="topBox"] {
        background-image: url('classes/ui/imgs/homebg.png');
        background-repeat: no-repeat;

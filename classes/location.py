@@ -2,7 +2,7 @@ import json
 import os
 
 class Location:
-    def __init__(self, address: str, coordinates: dict, temperature: float = 0.0, precipitation: float = 0.0, currentTime: str = "", population: int = 0):
+    def __init__(self, address: str, coordinates: dict = {"lat":0,"lng":0}, temperature: float = 0.0, precipitation: float = 0.0, currentTime: str = "", population: int = 0):
         self._address = address
         self._coordinates = [coordinates["lat"], coordinates["lng"]]  # In lat/long format
         self._temperature = temperature

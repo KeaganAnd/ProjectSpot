@@ -18,15 +18,15 @@ class MainWindow(QMainWindow):
         #!HOME SCREEN
 
         # Central Widget and Main Layout
-        centralWidget = QWidget()
-        mainLayout = QVBoxLayout(centralWidget)
+        self.centralWidget = QWidget()
+        mainLayout = QVBoxLayout(self.centralWidget)
 
         # Stacked Widget to switch between pages
-        self.stacked_widget = QStackedWidget(centralWidget)
+        self.stacked_widget = QStackedWidget(self.centralWidget)
 
         # Group Boxes for top and bottom sections
-        self.topGroupBox = QGroupBox(centralWidget)
-        self.bottomGroupBox = QGroupBox(centralWidget)
+        self.topGroupBox = QGroupBox(self.centralWidget)
+        self.bottomGroupBox = QGroupBox(self.centralWidget)
 
         # Layouts for Group Boxes
         self.topLayout = QVBoxLayout()
@@ -84,27 +84,37 @@ class MainWindow(QMainWindow):
         #Header section
         self.header = QGroupBox()
         self.locationMainLayout.addWidget(self.header)
-        self.header.setMaximumHeight(60)
+        self.header.setMaximumHeight(80)
 
         self.headerLayout = QHBoxLayout(self.header)
-        self.homeButton = QPushButton("Home")
+        self.homeButton = QPushButton("Spot Finder")
         self.searchBar2 = QLineEdit()
         self.headerLayout.addWidget(self.homeButton)
         self.headerLayout.addWidget(self.searchBar2)
         self.headerLayout.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.headerLayout.setAlignment(Qt.AlignmentFlag.AlignVCenter)
         
+        self.homeButton.setProperty("class","homeButton")
+        self.homeButton.setMaximumWidth(350)
+        self.homeButton.setMinimumHeight(80)
+        self.homeButton.clicked.connect(self.switch_to_home_page)
+
+
         #Body
         self.locationHead = QGroupBox()
         self.locationHeadLayout = QVBoxLayout()
         self.locationHead.setLayout(self.locationHeadLayout)
         self.locationMainLayout.addWidget(self.locationHead)
 
+
         self.locationName = QLabel("Location Name")
         self.locationHeadLayout.addWidget(self.locationName)
         self.locationHeadLayout.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignHCenter)
         self.locationName.setProperty("class", "header1")
 
+        #Search Bar2
+        self.searchBar2.setStyleSheet("QLineEdit { padding-left: 15px; padding-right: 10px; padding-top: 5px; padding-bottom: 5px; }")
+        self.searchBar2.setPlaceholderText("Where's Your Next Spot?")
         
 
 
@@ -112,25 +122,40 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.stacked_widget)
         
         # Add pages to stacked widget
-        self.stacked_widget.addWidget(centralWidget)  # First page
+        self.stacked_widget.addWidget(self.centralWidget)  # First page
         self.stacked_widget.addWidget(self.locationPage)  # Second page
 
 
         # Default page to show
-        self.stacked_widget.setCurrentWidget(centralWidget)
+        self.stacked_widget.setCurrentWidget(self.centralWidget)
 
     def keyPressEvent(self, event):
         """Handle key press events."""
         if event.key() == Qt.Key.Key_Return:  # Check if the Enter key was pressed
             print("Return")
-            if len(self.searchBar.text()) > 0:
+            if len(self.searchBar.text()) > 0: #If the home page bar is typed in
                 self.switch_to_second_page()  # Switch to the second page if text is entered
+            elif len(self.searchBar2.text()) > 0:
+                self.update_location_page()
+
+    def update_location_page(self):
+        from main import getLocation
+        location = getLocation(self.searchBar2.text())
+        self.locationName.setText(location.getAddress())
 
     def switch_to_second_page(self):
         """Switch to the second page in the stacked widget."""
         from main import getLocation
         location = getLocation(self.searchBar.text())
         self.stacked_widget.setCurrentWidget(self.locationPage)
-        self.locationName.setText(location.getAddress())
 
+        if location.getAddress() == "N/A":
+            self.locationName.setText("Sorry! We weren't able to find this location.")
+        else:
+            self.locationName.setText(location.getAddress())
+        self.searchBar.setText("")
+
+    def switch_to_home_page(self):
+        self.stacked_widget.setCurrentWidget(self.centralWidget)
+        self.searchBar2.setText("")
 
