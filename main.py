@@ -75,9 +75,11 @@ def getLocation(location: str) -> Location:
 def getWeather(location: Location): #Gets weather of location from coordinates
     #Uses open-meto for weather: https://open-meteo.com/en/docs
     coordinates = location.getCoordinates()
-    response = requests.get(f"https://api.open-meteo.com/v1/forecast?latitude={coordinates[0]}&longitude={coordinates[1]}&hourly=temperature_2m&current=temperature_2m,is_day,precipitation&wind_speed_unit=mph&temperature_unit=fahrenheit&precipitation_unit=inch")
+    response = requests.get(f"https://api.open-meteo.com/v1/forecast?latitude={coordinates[0]}&longitude={coordinates[1]}&hourly=precipitation&current=temperature_2m,precipitation&timezone=auto&wind_speed_unit=mph&temperature_unit=fahrenheit&precipitation_unit=inch")
     location.setTemperature(response.json()["current"]["temperature_2m"])
-    location.setPrecipitation(response.json()["current"]["precipitation"])
+    sevenDayRain = 0
+    for day in response.json()["hourly"]["precipitation	"]: sevenDayRain+=day
+    location.setPrecipitation(sevenDayRain)
     location.setCurrentTime(response.json()["current"]["time"][-5:])
 
 def viewPreviousLocations(): #Function to get recent locations

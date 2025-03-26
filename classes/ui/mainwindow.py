@@ -2,7 +2,32 @@ from PyQt6.QtGui import *
 from PyQt6.QtWidgets import *
 from PyQt6.QtCore import *
 
+currentLocation = None
 
+class WeatherWidget(QGroupBox):
+    def __init__(self):
+        super().__init__("")
+        # Layout inside QGroupBox
+        layout = QHBoxLayout(self)
+
+        # Image label for weather icon
+        self.weatherImageLabel = QLabel(self)
+        self.weatherImageLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(self.weatherImageLabel)
+
+        # Temperature label
+        self.tempLabel = QLabel("Temperature: 25°C", self)
+        layout.addWidget(self.tempLabel)
+
+        # Precipitation label
+        self.precipLabel = QLabel("Precipitation: 10%", self)
+        layout.addWidget(self.precipLabel)
+
+        # Set layout for the QGroupBox
+        self.setLayout(layout)
+    
+    def updateWeatherLabels(self):
+        self.tempLabel.setText(str(currentLocation.getTemperature()))
 class MainWindow(QMainWindow):
     
     def __init__(self, *args, **kwargs):
@@ -78,13 +103,18 @@ class MainWindow(QMainWindow):
         
         #!Location Page
         self.locationPage = QWidget()
-        self.locationMainLayout = QVBoxLayout()
+        self.locationMainLayout = QVBoxLayout(self.locationPage)
         self.locationPage.setLayout(self.locationMainLayout)
 
-        #Header section
+        # Remove margins and spacing
+        self.locationMainLayout.setContentsMargins(0, 0, 0, 0)  # No margins
+        self.locationMainLayout.setSpacing(0)  # No spacing
+
+        # Header section
         self.header = QGroupBox()
         self.locationMainLayout.addWidget(self.header)
-        self.header.setMaximumHeight(80)
+        self.header.setMaximumHeight(125)
+        self.header.setProperty("class", "header")
 
         self.headerLayout = QHBoxLayout(self.header)
         self.homeButton = QPushButton("Spot Finder")
@@ -92,30 +122,37 @@ class MainWindow(QMainWindow):
         self.headerLayout.addWidget(self.homeButton)
         self.headerLayout.addWidget(self.searchBar2)
         self.headerLayout.setAlignment(Qt.AlignmentFlag.AlignTop)
-        self.headerLayout.setAlignment(Qt.AlignmentFlag.AlignVCenter)
-        
-        self.homeButton.setProperty("class","homeButton")
+
+        # Remove margins and spacing from header layout
+        self.headerLayout.setContentsMargins(0, 0, 0, 0)  # No margins
+        self.headerLayout.setSpacing(0)  # No spacing
+
+        self.homeButton.setProperty("class", "homeButton")
         self.homeButton.setMaximumWidth(350)
         self.homeButton.setMinimumHeight(80)
         self.homeButton.clicked.connect(self.switch_to_home_page)
 
-
-        #Body
+        # Body
         self.locationHead = QGroupBox()
-        self.locationHeadLayout = QVBoxLayout()
-        self.locationHead.setLayout(self.locationHeadLayout)
+        self.locationHeadLayout = QVBoxLayout(self.locationHead)
         self.locationMainLayout.addWidget(self.locationHead)
 
+        # Remove margins and spacing from location head layout
+        self.locationHeadLayout.setContentsMargins(0, 0, 0, 0)
+        self.locationHeadLayout.setSpacing(0)
 
         self.locationName = QLabel("Location Name")
         self.locationHeadLayout.addWidget(self.locationName)
         self.locationHeadLayout.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignHCenter)
         self.locationName.setProperty("class", "header1")
 
-        #Search Bar2
+        # Search Bar2
         self.searchBar2.setStyleSheet("QLineEdit { padding-left: 15px; padding-right: 10px; padding-top: 5px; padding-bottom: 5px; }")
         self.searchBar2.setPlaceholderText("Where's Your Next Spot?")
-        
+
+        # Weather Widget
+        self.weatherWidget = WeatherWidget()
+        self.locationMainLayout.addWidget(self.weatherWidget)
 
 
         # Set Central Widget
@@ -142,17 +179,22 @@ class MainWindow(QMainWindow):
         from main import getLocation
         location = getLocation(self.searchBar2.text())
         self.locationName.setText(location.getAddress())
+        self.weatherWidget.updateWeatherLabels()
 
     def switch_to_second_page(self):
         """Switch to the second page in the stacked widget."""
         from main import getLocation
         location = getLocation(self.searchBar.text())
         self.stacked_widget.setCurrentWidget(self.locationPage)
-
+        print(location.getAddress() == "N/A")
         if location.getAddress() == "N/A":
             self.locationName.setText("Sorry! We weren't able to find this location.")
+            self.weatherWidget.updateWeatherLabels()
         else:
             self.locationName.setText(location.getAddress())
+            global currentLocation
+            currentLocation = location
+            self.weatherWidget.updateWeatherLabels()
         self.searchBar.setText("")
 
     def switch_to_home_page(self):

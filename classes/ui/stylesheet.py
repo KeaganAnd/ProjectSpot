@@ -1,7 +1,7 @@
 def returnStyleSheet():
     return("""
 [class="header1"] {
-       color: #F5F5F5;
+       color: white;
        font-size: 50px;
        font-weight: bold;
        margin: 0px 0px 0px 0px;
@@ -37,7 +37,7 @@ QVBoxLayout
        }
 QLineEdit
        {
-       background-color: #A5D6A7;
+       background-color: #8FBC8F;
        color: #F5F5F5;
        min-height: 50px;
        max-height: 50px;
@@ -50,15 +50,23 @@ QLineEdit
 QMainWindow{
        margin: 0px 0px 0px 0px;
        padding: 0px 0px 0px 0px;
+       background-color: #8FBC8F;
        }
 QWidget{
        margin: 0px 0px 0px 0px;
-       padding: 0px 0px 0px 0px;    
+       padding: 0px 0px 0px 0px;
+       
        }
 QGroupBox {
        margin: 0px 0px 0px 0px;
        padding: 0px 0px 0px 0px;
        border: none;
            
+       }
+[class="header"] {
+       background-image: url('classes/ui/imgs/homebg.png');
+       background-repeat: no-repeat;
+       background-position: bottom;
+               
        }
 """)
