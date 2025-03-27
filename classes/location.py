@@ -45,8 +45,6 @@ class Location:
     def setCurrentTime(self, current_time: str):
         self._currentTime = current_time
 
-    def setPrecipitation(self, current_time: str):
-        self._currentTime = current_time
 
     def __str__(self):
         return (f"Report For: {self._address}:\n------------------------\n"
@@ -71,8 +69,8 @@ class Location:
                     if location["Coordinates"] != self._coordinates:
                         currentLocations.append(location)
             
-            if len(currentLocations) > 10:
-                currentLocations.pop(10) #Only allows 10 locations to be saved
+            if len(currentLocations) > 4:
+                currentLocations.pop(4) #Only allows 10 locations to be saved
 
             with open(filePath, "w") as file:
                 jsonObject = json.dumps(currentLocations, indent=4)

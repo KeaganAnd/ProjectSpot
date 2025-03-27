@@ -18,7 +18,6 @@ from dotenv import load_dotenv, dotenv_values
 import os
 from classes.location import Location, loadObjectFromJson
 from classes.ui.stylesheet import returnStyleSheet
-import json
 import sys
 
 '''UI Component imports'''
@@ -27,8 +26,6 @@ from classes.ui.mainwindow import MainWindow
 
 
 load_dotenv("keys.env") #Loads keys from keys.env | Keys can be accessed with os.genenv("KEYNAME")
-
-clearConsole = lambda: os.system('cls') #Lambda to clear console, call like clearConsole()
 
 
 
@@ -65,58 +62,23 @@ def getLocation(location: str) -> Location:
         if len(response.json()["results"]) > 0:
             results = response.json()["results"][0]
             
+            
             return(Location(address=results["formatted_address"],coordinates=results["geometry"]["location"]))
         else:
             return(Location(address="N/A"))
     else:
         print("API is not responding")
-        return
+        return Location(address="N/A")
 
 def getWeather(location: Location): #Gets weather of location from coordinates
     #Uses open-meto for weather: https://open-meteo.com/en/docs
     coordinates = location.getCoordinates()
-    response = requests.get(f"https://api.open-meteo.com/v1/forecast?latitude={coordinates[0]}&longitude={coordinates[1]}&hourly=precipitation&current=temperature_2m,precipitation&timezone=auto&wind_speed_unit=mph&temperature_unit=fahrenheit&precipitation_unit=inch")
+    response = requests.get(f"https://api.open-meteo.com/v1/forecast?latitude={coordinates[0]}&longitude={coordinates[1]}&hourly=precipitation&current=temperature_2m&timezone=auto&wind_speed_unit=mph&temperature_unit=fahrenheit&precipitation_unit=inch")
     location.setTemperature(response.json()["current"]["temperature_2m"])
-    sevenDayRain = 0
-    for day in response.json()["hourly"]["precipitation	"]: sevenDayRain+=day
+    sevenDayRain = 0.0
+    for day in response.json()["hourly"]["precipitation"]: sevenDayRain+=day
     location.setPrecipitation(sevenDayRain)
     location.setCurrentTime(response.json()["current"]["time"][-5:])
-
-def viewPreviousLocations(): #Function to get recent locations
-    filePath = "cachedLocations.json"
-    try: #Opens json file, parses it, and generates the form for the user to select a location
-        clearConsole()
-        print("Recent Searches: \n---------------------\n\n")
-        with open(filePath, "r") as file:
-            loadedFile = json.load(file)
-            
-            emojiList = ["0️⃣","1️⃣","2️⃣","3️⃣","4️⃣","5️⃣","6️⃣","7️⃣","8️⃣","9️⃣"]
-
-            for i, location in enumerate(loadedFile):
-                print(f"{emojiList[i]}: {location["address"]}")
-            try:
-                userInput = int(input())
-            except ValueError: #This occurs if the user does not enter an integer in the input
-                clearConsole()
-                print("Please enter a number")
-                input()
-                file.close()
-                viewPreviousLocations()
-            if userInput >= 0 and userInput < len(loadedFile): #Checks if user input is between 0 and the amount of locations
-                clearConsole()
-                print(loadObjectFromJson(loadedFile[userInput]))
-                file.close()
-            else:
-                clearConsole()
-                print("Please select a valid option")
-                input()
-                file.close()
-                viewPreviousLocations()
-
-
-    except FileNotFoundError: #This occurs if the user has not searched yet
-        clearConsole()
-        print("Nothing here yet!")
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

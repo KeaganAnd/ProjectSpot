@@ -8,6 +8,14 @@ def returnStyleSheet():
        padding: 0px 0px 0px 0px;
        font-family: Times New Roman;
        }  
+[class="header3"] {
+       color: white;
+       font-size: 30px;
+       font-weight: bold;
+       margin: 0px 0px 0px 0px;
+       padding: 0px 0px 0px 0px;
+       font-family: Times New Roman;
+       }  
 [class="homeButton"] {
        font-family: Times New Roman;
        font-size: 60px;
@@ -15,6 +23,7 @@ def returnStyleSheet():
        background: none;
        border: none;
        text-align: left;
+       padding-left: 10px;
        }
 [class="homeButton"]:hover {
        color: #A5D6A7;
@@ -23,8 +32,7 @@ def returnStyleSheet():
        background-image: url('classes/ui/imgs/homebg.png');
        background-repeat: no-repeat;
        background-position: bottom;
-           
-           }
+       }
 QSplitter{
        
        margin: 0px 0px 0px 0px;
@@ -45,6 +53,11 @@ QLineEdit
        max-width: 1000px;
        border-radius: 20px;
        margin: 0px 0px 0px 0px;
+       border: 1px solid white;
+       }
+QLineEdit:hover
+       {
+       background-color: #A2D1A2;
 
        }
 QMainWindow{
@@ -64,9 +77,21 @@ QGroupBox {
            
        }
 [class="header"] {
-       background-image: url('classes/ui/imgs/homebg.png');
-       background-repeat: no-repeat;
-       background-position: bottom;
+       background-color: #30343F;
+       border-bottom: 3px solid white;
                
+       }
+[class="locationInfoWidget"] {
+       border: 2px solid white;
+       border-radius: 5px;
+       margin: 5px 5px 5px 5px;
+       background-color: #30343F;
+       }
+[class2="locationButton"] {
+       border: none;
+       background-color: none;
+       }
+[class2="locationButton"]:hover {
+       color: #A5D6A7;    
        }
 """)
