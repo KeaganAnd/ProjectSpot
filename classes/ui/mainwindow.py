@@ -169,6 +169,90 @@ class MapWidget(QGroupBox):
         weatherPixmap = QPixmap(mapLocation)
         self.mapImageLabel.setPixmap(weatherPixmap)
         print("Updated")
+
+class PovertyWidget(QGroupBox):
+    def __init__(self):
+        super().__init__("")
+        self.setMaximumSize(350, 300)
+        self.setProperty("class", "locationInfoWidget")
+        
+
+        # Main vertical layout
+        main_layout = QVBoxLayout(self)
+
+
+        # Image label for weather icon
+        self.medianIncomeLabel = QLabel("Median Income:",self)
+        self.medianIncomeLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.medianIncomeLabel.setProperty("class","boldBody")
+
+        
+        main_layout.addWidget(self.medianIncomeLabel)
+
+        # Temperature label
+        self.peopleInPovertyLabel = QLabel("People In Poverty:", self)
+        self.peopleInPovertyLabel.setProperty("class","boldBody")
+        self.peopleInPovertyLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        main_layout.addWidget(self.peopleInPovertyLabel)
+
+
+
+        # Set size policies to ensure expansion
+        self.medianIncomeLabel.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        self.peopleInPovertyLabel.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+      
+
+        # Set minimum sizes to ensure layout allocation
+        self.medianIncomeLabel.setMinimumSize(1,1)
+        self.peopleInPovertyLabel.setMinimumSize(1,1)
+
+        # Set layout for the QGroupBox
+        self.setLayout(main_layout)
+        self.setStyleSheet("[class=\"locationInfoWidget\"] {padding: 5px 5px 5px 5px;} ")
+
+    def updateLabels(self):
+        if currentLocation.getCountry() == "United Staes":
+            from functions.getPovertyData import getPovertyData
+            data = getPovertyData(currentLocation)
+            self.medianIncomeLabel.setText(f"Median Income: ${int(data[1][1]):,}")
+            self.peopleInPovertyLabel.setText(f"People In Poverty: {int(data[1][2]):,}")
+
+class DescriptionWidget(QGroupBox):
+    def __init__(self):
+        super().__init__("")
+        self.setMaximumSize(600, 300)
+        self.setProperty("class", "locationInfoWidget")
+        
+
+        # Main vertical layout
+        main_layout = QVBoxLayout(self)
+
+        # Image label for weather icon
+        self.descLabel = QLabel("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.", self)
+        self.descLabel.setWordWrap(True)
+        self.descLabel.setProperty("class","boldBody")
+
+
+        
+        
+        self.descLabel.setScaledContents(True)
+        main_layout.addWidget(self.descLabel)
+
+        
+        self.descLabel.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+       
+        self.descLabel.setMinimumSize(1,1)
+        self.setLayout(main_layout)
+        self.setStyleSheet("[class=\"locationInfoWidget\"] {padding: 5px 5px 5px 5px;} ")
+
+    def updateLabel(self):
+        if currentLocation.getCountry() == "United States":
+            with open("functions/functionData/stateDescs.json") as file:
+                data = json.load(file)
+                self.descLabel.setText(data[currentLocation.getState()])
+            
+            print("Updated")
+
 class MainWindow(QMainWindow):
     
     def __init__(self, *args, **kwargs):
@@ -324,7 +408,15 @@ class MainWindow(QMainWindow):
 
         # Map Widget
         self.mapWidget = MapWidget()
-        self.bottomRowWidgetsLayout.addWidget(self.mapWidget)
+        self.topRowWidgetsLayout.addWidget(self.mapWidget)
+
+        #Poverty Widget
+        self.povertyWidget = PovertyWidget()
+        self.topRowWidgetsLayout.addWidget(self.povertyWidget)
+
+        #Description Widget
+        self.descWidget = DescriptionWidget()
+        self.bottomRowWidgetsLayout.addWidget(self.descWidget)
 
         # Adjust margins for the top and bottom row layouts
         self.topRowWidgetsLayout.setContentsMargins(0, 0, 0, 0)  # Remove margins
@@ -386,10 +478,14 @@ class MainWindow(QMainWindow):
         from main import getLocation, getWeather
         
         location = getLocation(self.searchBar2.text())
+        global currentLocation
+        currentLocation = location
         getWeather(location)
         self.locationName.setText(location.getAddress())
         self.weatherWidget.updateWeatherLabels()
         self.mapWidget.updateMap()
+        self.povertyWidget.updateLabels()
+        self.descWidget.updateLabel()
 
     def switch_to_second_page(self):
         """Switch to the second page in the stacked widget."""
@@ -403,12 +499,21 @@ class MainWindow(QMainWindow):
         if location.getAddress() == "N/A":
             self.locationName.setText("Sorry! We weren't able to find this location.")
             self.weatherWidget.setVisible(False)
+            self.mapWidget.setVisible(False)
+            self.povertyWidget.setVisible(False)
+            self.povertyWidget.setVisible(False)
         else:
             self.locationName.setText(location.getAddress())
             currentLocation = location
             self.weatherWidget.updateWeatherLabels()
             self.mapWidget.updateMap()
+            self.povertyWidget.updateLabels()
+            self.descWidget.updateLabel()
+
             self.weatherWidget.setVisible(True)
+            self.mapWidget.setVisible(True)
+            self.povertyWidget.setVisible(True)
+            self.descWidget.setVisible(True)
         self.searchBar.setPlaceholderText("Where's Your Next Spot?")
         self.searchBar.setText("")
         self.blur_effect.setBlurRadius(0)

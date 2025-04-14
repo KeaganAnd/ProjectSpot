@@ -58,8 +58,16 @@ def getLocation(location: str) -> Location:
         if len(response.json()["results"]) > 0:
             results = response.json()["results"][0]
             
+            country = "N/A"
+            state = "N/A"
+
+            for addressComponent in results["address_components"]:
+                if addressComponent["types"][0] == "country":
+                    country = addressComponent["long_name"]
+                elif addressComponent["types"][0] == "administrative_area_level_1":
+                    state = addressComponent["long_name"]
             
-            return(Location(address=results["formatted_address"],coordinates=results["geometry"]["location"]))
+            return(Location(address=results["formatted_address"],coordinates=results["geometry"]["location"],country=country, state=state))
         else:
             return(Location(address="N/A"))
     else:

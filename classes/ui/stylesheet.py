@@ -28,6 +28,10 @@ def returnStyleSheet():
 [class="homeButton"]:hover {
        color: #A5D6A7;
        }
+[class="boldBody"] {
+       font-size: 20px;
+       font-weight: bold;    
+       }
 [id="topBox"] {
        background-image: url('classes/ui/imgs/homebg.png');
        background-repeat: no-repeat;
