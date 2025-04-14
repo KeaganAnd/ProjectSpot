@@ -1,3 +1,5 @@
 *.env
 cachedLocations.json
-__pycache__ need ot figure out
+__pycache__
+*.pyc
+*.pyo

@@ -2,13 +2,15 @@ import json
 import os
 
 class Location:
-    def __init__(self, address: str, coordinates: dict, temperature: float = 0.0, precipitation: float = 0.0, currentTime: str = "", population: int = 0):
+    def __init__(self, address: str, country: str = "N/A", state: str = "N/A", coordinates: dict = {"lat":0,"lng":0}, temperature: float = 0.0, precipitation: float = 0.0, currentTime: str = "", population: int = 0):
         self._address = address
         self._coordinates = [coordinates["lat"], coordinates["lng"]]  # In lat/long format
         self._temperature = temperature
         self._precipitation = precipitation
         self._currentTime = currentTime
         self._population = population
+        self._country = country
+        self._state = state
 
     # Getters
     def getAddress(self) -> str:
@@ -28,6 +30,12 @@ class Location:
     
     def getPopulation(self) -> int:
         return self._currentTime
+    
+    def getCountry(self) -> str:
+        return self._country
+    
+    def getState(self) -> str:
+        return self._state
 
     # Setters
     def setAddress(self, address: str):
@@ -45,8 +53,12 @@ class Location:
     def setCurrentTime(self, current_time: str):
         self._currentTime = current_time
 
-    def setPrecipitation(self, current_time: str):
-        self._currentTime = current_time
+    def setCountry(self, country: str):
+        self._country = country
+    
+    def setState(self, state: str):
+        self._state = state
+
 
     def __str__(self):
         return (f"Report For: {self._address}:\n------------------------\n"
@@ -56,9 +68,9 @@ class Location:
                 f"Current Time: {self._currentTime}")
     
     def jsonify(self): #Adds this location to the json file
-        filePath = f"{os.path.join(os.path.dirname(os.path.dirname(__file__)), "json", "cachedLocations.json")}"
+        filePath = f"{os.path.join(os.path.dirname(os.path.dirname(__file__)), "cachedLocations.json")}"
 
-        data =  {"address" : self._address, "Coordinates" : self._coordinates, "Temperature" : self._temperature, "Precipitation" : self._precipitation, "Current Time" : self._currentTime}
+        data =  {"address" : self._address, "Coordinates" : self._coordinates, "Temperature" : self._temperature, "Precipitation" : self._precipitation, "Current Time" : self._currentTime, "Country" : self._country, "State" : self._state}
         
         
 
@@ -71,8 +83,8 @@ class Location:
                     if location["Coordinates"] != self._coordinates:
                         currentLocations.append(location)
             
-            if len(currentLocations) > 10:
-                currentLocations.pop(10) #Only allows 10 locations to be saved
+            if len(currentLocations) > 4:
+                currentLocations.pop(4) #Only allows 10 locations to be saved
 
             with open(filePath, "w") as file:
                 jsonObject = json.dumps(currentLocations, indent=4)
@@ -86,4 +98,4 @@ class Location:
         file.close()
 
 def loadObjectFromJson(location : dict): #This function just turns a dict into a Location object used in the get recent locations function in main.py
-    return(Location(location["address"],{"lat" : location["Coordinates"][0],"lng" : location["Coordinates"][1]},location["Temperature"],location["Precipitation"],location["Current Time"]))
+    return(Location(address=location["address"],coordinates={"lat" : location["Coordinates"][0],"lng" : location["Coordinates"][1]},temperature=location["Temperature"],precipitation=location["Precipitation"],currentTime=location["Current Time"],country=location["Country"], state=location["State"]))
