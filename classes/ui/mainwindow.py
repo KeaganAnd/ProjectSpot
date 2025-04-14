@@ -5,6 +5,7 @@ from ..location import loadObjectFromJson
 import json
 currentLocation = None
 class LocationWidget(QGroupBox):
+    '''The location widgets to recall previous locations on the home page'''
     locationClickedSignal = pyqtSignal(str) # Define the signal
 
     def __init__(self):
@@ -77,7 +78,7 @@ class LocationWidget(QGroupBox):
 class WeatherWidget(QGroupBox):
     def __init__(self):
         super().__init__("")
-        self.setMaximumSize(400, 400)
+        self.setMaximumSize(350, 300)
         self.setProperty("class", "locationInfoWidget")
         
 
@@ -134,6 +135,40 @@ class WeatherWidget(QGroupBox):
             weatherPixmap = QPixmap('classes/ui/imgs/weatherIcons/sun.png')
             self.weatherImageLabel.setPixmap(weatherPixmap)
             self.precipLabel.setText(f"In the last 7 days: \n{currentLocation.getPrecipitation():.2f}in of precipitation")
+
+class MapWidget(QGroupBox):
+    def __init__(self):
+        super().__init__("")
+        self.setMaximumSize(350, 300)
+        self.setProperty("class", "locationInfoWidget")
+        
+
+        # Main vertical layout
+        main_layout = QVBoxLayout(self)
+
+        # Image label for weather icon
+        self.mapImageLabel = QLabel(self)
+        self.mapImageLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        
+        
+        self.mapImageLabel.setScaledContents(True)
+        main_layout.addWidget(self.mapImageLabel)
+
+        
+        self.mapImageLabel.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+       
+        self.mapImageLabel.setMinimumSize(1,1)
+        self.setLayout(main_layout)
+        self.setStyleSheet("[class=\"locationInfoWidget\"] {padding: 5px 5px 5px 5px;} ")
+
+    def updateMap(self):
+        from functions.getLocationMap import getLocationMap
+        mapLocation = getLocationMap(currentLocation)
+
+        weatherPixmap = QPixmap(mapLocation)
+        self.mapImageLabel.setPixmap(weatherPixmap)
+        print("Updated")
 class MainWindow(QMainWindow):
     
     def __init__(self, *args, **kwargs):
@@ -141,7 +176,8 @@ class MainWindow(QMainWindow):
 
         # Window setup
         self.setWindowTitle("Spot Finder")
-        self.setFixedSize(1920,1080)
+        self.setMaximumSize(1920,1080)
+        self.setMinimumSize(1440,932)
         self.setWindowIcon(QIcon('classes/ui/imgs/searchIcon.png'))
 
 
@@ -261,13 +297,47 @@ class MainWindow(QMainWindow):
         self.searchBar2.setStyleSheet("QLineEdit { padding-left: 15px; padding-right: 10px; padding-top: 5px; padding-bottom: 5px; }")
         self.searchBar2.setPlaceholderText("Where's Your Next Spot?")
 
+        # Widget Container
+        self.widgetContainer = QGroupBox()
+        self.widgetContainerLayout = QVBoxLayout()
+        self.widgetContainer.setLayout(self.widgetContainerLayout)
+        self.widgetContainerLayout.setStretch(0, 2)
+        self.widgetContainerLayout.setStretch(1, 2)
+        self.widgetContainerLayout.setSpacing(5)  # Reduce spacing between rows
+        self.widgetContainerLayout.setContentsMargins(0, 0, 0, 0)
+
+        # Top Row Widgets Box
+        self.topRowWidgetsBox = QGroupBox()
+        self.topRowWidgetsLayout = QHBoxLayout()
+        self.topRowWidgetsBox.setLayout(self.topRowWidgetsLayout)
+        self.widgetContainerLayout.addWidget(self.topRowWidgetsBox)
+
+        # Bottom Row Widgets Box
+        self.bottomRowWidgetsBox = QGroupBox()
+        self.bottomRowWidgetsLayout = QHBoxLayout()
+        self.bottomRowWidgetsBox.setLayout(self.bottomRowWidgetsLayout)
+        self.widgetContainerLayout.addWidget(self.bottomRowWidgetsBox)
+
         # Weather Widget
         self.weatherWidget = WeatherWidget()
-        self.locationMainLayout.addWidget(self.weatherWidget)
+        self.topRowWidgetsLayout.addWidget(self.weatherWidget)
+
+        # Map Widget
+        self.mapWidget = MapWidget()
+        self.bottomRowWidgetsLayout.addWidget(self.mapWidget)
+
+        # Adjust margins for the top and bottom row layouts
+        self.topRowWidgetsLayout.setContentsMargins(0, 0, 0, 0)  # Remove margins
+        self.bottomRowWidgetsLayout.setContentsMargins(0, 0, 0, 0)  # Remove margins
+        
+
+        # Add the widgetContainer to the locationMainLayout
+        self.locationMainLayout.addWidget(self.widgetContainer)  # Ensure the container is added to the layout
 
         # Set Central Widget
         self.setCentralWidget(self.stacked_widget)
 
+        # Blur When Loading
         self.blur_effect = QGraphicsBlurEffect(self)
         self.blur_effect.setBlurRadius(0)
         self.stacked_widget.setGraphicsEffect(self.blur_effect)
@@ -319,6 +389,7 @@ class MainWindow(QMainWindow):
         getWeather(location)
         self.locationName.setText(location.getAddress())
         self.weatherWidget.updateWeatherLabels()
+        self.mapWidget.updateMap()
 
     def switch_to_second_page(self):
         """Switch to the second page in the stacked widget."""
@@ -336,6 +407,7 @@ class MainWindow(QMainWindow):
             self.locationName.setText(location.getAddress())
             currentLocation = location
             self.weatherWidget.updateWeatherLabels()
+            self.mapWidget.updateMap()
             self.weatherWidget.setVisible(True)
         self.searchBar.setPlaceholderText("Where's Your Next Spot?")
         self.searchBar.setText("")

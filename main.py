@@ -14,9 +14,9 @@ We do not want keys leaked on Github
 '''
   
 import requests
-from dotenv import load_dotenv, dotenv_values
+from dotenv import load_dotenv
 import os
-from classes.location import Location, loadObjectFromJson
+from classes.location import Location
 from classes.ui.stylesheet import returnStyleSheet
 import sys
 
@@ -35,15 +35,11 @@ def getLocation(location: str) -> Location:
     The address should be formatted like: address=+1600+Jordna+Lane,+Chicago,+Illinois
     Documents: https://developers.google.com/maps/documentation/geocoding/requests-geocoding#json'''
 
-    #Start of user input
-    userSearchLocation = location
-
-    
 
     print("Loading...")
 
     #Creates location object
-    address = userSearchLocation
+    address = location
     address = address.lower()
     address = address.split(',')
 
@@ -89,6 +85,11 @@ if __name__ == "__main__":
 
     app.exec()
 
+
+#Deletes all generated images
+for item in os.listdir("functions/generatedImages"):
+    if item.endswith(".png") or item.endswith(".jpg"):
+        os.remove(f"functions/generatedImages/{item}")
 
 print("End of program")
 
