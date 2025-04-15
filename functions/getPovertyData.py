@@ -15,7 +15,7 @@ def getPovertyData(location: Location) -> list:
     load_dotenv("keys.env")
     if location.getCountry() == "United States":
         print("Loading Poverty Data")
-        print(location.getCountry())
+        
         with open("functions/functionData/stateFips.json", "r") as file:
             fipsDict = json.load(file) #Loads the dictionary of state codes needed for API
 
@@ -42,7 +42,7 @@ def getPovertyData(location: Location) -> list:
             
             
 
-            request = requests.get(f"https://api.census.gov/data/timeseries/poverty/saipe?get=NAME,SAEMHI_PT,SAEPOVALL_PT&for=state:{stateID}&YEAR=2023&key={os.getenv("USCensus")}", headers=headers, timeout=.5)
+            request = requests.get(f"https://api.census.gov/data/timeseries/poverty/saipe?get=NAME,SAEMHI_PT,SAEPOVALL_PT&for=state:{stateID}&YEAR=2023&key={os.getenv("USCensus")}", headers=headers, timeout=2)
             print("Done Loading Poverty Data")
             return(request.json())
         
