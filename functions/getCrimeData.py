@@ -65,7 +65,7 @@ def getCrimeData(location: Location) -> int:
     if location.getCountry() == "United States":
         print("Loading Crime Data")
         
-        request = requests.get(f"https://api.usa.gov/crime/fbi/cde/arrest/state/{state_abbreviations[location.getState()]}/all?type=totals&from=01-2023&to=01-2024&API_KEY={os.getenv("Criminal")}",timeout=3)
+        request = requests.get(f"https://api.usa.gov/crime/fbi/cde/arrest/state/{state_abbreviations[location.getState()]}/all?type=totals&from=01-2023&to=01-2024&API_KEY={os.getenv("FBI")}",timeout=3)
 
         offenses = request.json()["Offense Name"]
 
