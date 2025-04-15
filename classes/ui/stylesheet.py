@@ -90,6 +90,7 @@ QGroupBox {
        border-radius: 10px;
        margin: 5px 5px 5px 5px;
        background-color: #30343F;
+       background-image: url(classes/ui/imgs/denim2.png);    
        }
 [class2="locationButton"] {
        border: none;
