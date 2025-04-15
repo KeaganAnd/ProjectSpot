@@ -173,7 +173,7 @@
         transform: translateY(-8px) rotate(-45deg);
     }
 }
-/* Home */
+/* Hero */
 
 .main__container {
     display: grid;
@@ -189,7 +189,7 @@
     padding: 0 50px;
 }
 .main__content h1 {
-    font-size: 4rem;
+    font-size: 2rem;
     background: -webkit-linear-gradient(45deg, #A2D1A2, #131313);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -204,7 +204,7 @@
 }
 .main__content p {
     margin-top: 1rem;
-    font-size: 2rem;
+    font-size: 1rem;
     font-weight: 700;
     color: #131313;
 }
@@ -295,3 +295,4 @@
         margin: 2.5rem 0;
     }
 }
+/* Download */
