@@ -8,7 +8,9 @@ load_dotenv("keys.env")
 
 
 def getLocationMap(location: Location) -> str:
-    '''https://maps.googleapis.com/maps/api/staticmap?size=500x500&center=40.714728,-73.998672&zoom=10&key=AIzaSyA_GXuUVDpkZJRJ5yMsbRE3t--TFh01r1w'''
+    '''Takes in a location object and uses the coordinates with the Google Maps API
+    to generate a map. The map is placed in functions/generatedImages.
+    The file name is then returned'''
     request = requests.get(f"https://maps.googleapis.com/maps/api/staticmap?size=350x300&center={location.getCoordinates()[0]},{location.getCoordinates()[1]}&zoom=10&key={os.getenv("GoogleMapsKey")}", stream=True)
 
 

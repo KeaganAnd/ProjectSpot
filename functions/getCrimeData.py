@@ -55,6 +55,9 @@ state_abbreviations = {
 }
 
 def getCrimeData(location: Location) -> int:
+    '''If the location is in the US then it will return crime statistics for the state.
+    Sums up all the violent crimes in 2023 and returns the int
+    Uses Census.gov'''
     if location.getCountry() == "United States":
         print("Loading Crime Data")
 
