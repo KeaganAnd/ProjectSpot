@@ -1,5 +1,9 @@
 import requests
 from classes.location import Location
+import os
+from dotenv import load_dotenv
+
+load_dotenv("keys.env")
 
 state_abbreviations = {
     "Alabama": "AL",
@@ -60,8 +64,8 @@ def getCrimeData(location: Location) -> int:
     Uses Census.gov'''
     if location.getCountry() == "United States":
         print("Loading Crime Data")
-
-        request = requests.get(f"https://api.usa.gov/crime/fbi/cde/arrest/state/{state_abbreviations[location.getState()]}/all?type=totals&from=01-2023&to=01-2024&API_KEY=iiHnOKfno2Mgkt5AynpvPpUQTEyxE77jo1RU8PIv",timeout=3)
+        
+        request = requests.get(f"https://api.usa.gov/crime/fbi/cde/arrest/state/{state_abbreviations[location.getState()]}/all?type=totals&from=01-2023&to=01-2024&API_KEY={os.getenv("Criminal")}",timeout=3)
 
         offenses = request.json()["Offense Name"]
 
