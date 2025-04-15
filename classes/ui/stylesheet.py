@@ -87,7 +87,7 @@ QGroupBox {
        }
 [class="locationInfoWidget"] {
        border: 2px solid white;
-       border-radius: 5px;
+       border-radius: 10px;
        margin: 5px 5px 5px 5px;
        background-color: #30343F;
        }

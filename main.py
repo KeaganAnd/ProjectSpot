@@ -74,17 +74,28 @@ def getLocation(location: str) -> Location:
         print("API is not responding")
         return Location(address="N/A")
 
-def getWeather(location: Location): #Gets weather of location from coordinates
-    #Uses open-meto for weather: https://open-meteo.com/en/docs
+def getWeather(location: Location): 
+    '''Takes in a location object and uses the coordinates to query the API getting current temp 
+    and precipitation from the last week. Populates the location object with this info.
+
+    Uses open-meto for weather: https://open-meteo.com/en/docs'''
+
+
     coordinates = location.getCoordinates()
     response = requests.get(f"https://api.open-meteo.com/v1/forecast?latitude={coordinates[0]}&longitude={coordinates[1]}&hourly=precipitation&current=temperature_2m&timezone=auto&wind_speed_unit=mph&temperature_unit=fahrenheit&precipitation_unit=inch")
+    
     location.setTemperature(response.json()["current"]["temperature_2m"])
+
     sevenDayRain = 0.0
     for day in response.json()["hourly"]["precipitation"]: sevenDayRain+=day
     location.setPrecipitation(sevenDayRain)
+    
     location.setCurrentTime(response.json()["current"]["time"][-5:])
 
+
 if __name__ == "__main__":
+    '''Main Loop Handles The UI Setup'''
+
     app = QApplication(sys.argv)
     app.setStyleSheet(returnStyleSheet())
 
@@ -94,7 +105,7 @@ if __name__ == "__main__":
     app.exec()
 
 
-#Deletes all generated images
+'''Deletes all generated images'''
 for item in os.listdir("functions/generatedImages"):
     if item.endswith(".png") or item.endswith(".jpg"):
         os.remove(f"functions/generatedImages/{item}")
