@@ -1,8 +1,8 @@
 '''
 Spot Finder!
-Pre-Release
+Beta
 
-3/14/2025
+4/15/2025
 
 Project Spot 2025
 
@@ -89,7 +89,7 @@ def getWeather(location: Location):
     sevenDayRain = 0.0
     for day in response.json()["hourly"]["precipitation"]: sevenDayRain+=day
     location.setPrecipitation(sevenDayRain)
-    
+
     location.setCurrentTime(response.json()["current"]["time"][-5:])
 
 

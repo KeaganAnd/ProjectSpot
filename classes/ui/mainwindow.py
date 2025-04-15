@@ -399,6 +399,8 @@ class MainWindow(QMainWindow):
         self.locationHead.setMaximumHeight(60)
         self.locationHeadLayout = QVBoxLayout(self.locationHead)
         self.locationMainLayout.addWidget(self.locationHead)
+        
+        
 
         # Remove margins and spacing from location head layout
         self.locationHeadLayout.setContentsMargins(0, 0, 0, 0)
@@ -416,6 +418,7 @@ class MainWindow(QMainWindow):
 
         # Widget Container
         self.widgetContainer = QGroupBox()
+        self.widgetContainer.setProperty("class","denimBackground")
         self.widgetContainerLayout = QVBoxLayout()
         self.widgetContainer.setLayout(self.widgetContainerLayout)
         self.widgetContainerLayout.setStretch(0, 2)
