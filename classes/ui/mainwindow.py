@@ -211,7 +211,7 @@ class PovertyWidget(QGroupBox):
         self.setStyleSheet("[class=\"locationInfoWidget\"] {padding: 5px 5px 5px 5px;} ")
 
     def updateLabels(self):
-        if currentLocation.getCountry() == "United Staes":
+        if currentLocation.getCountry() == "United States":
             from functions.getPovertyData import getPovertyData
             data = getPovertyData(currentLocation)
             self.medianIncomeLabel.setText(f"Median Income: ${int(data[1][1]):,}")
@@ -252,6 +252,39 @@ class DescriptionWidget(QGroupBox):
                 self.descLabel.setText(data[currentLocation.getState()])
             
             print("Updated")
+
+class CrimeWidget(QGroupBox):
+    def __init__(self):
+        super().__init__("")
+        self.setMaximumSize(350, 300)
+        self.setProperty("class", "locationInfoWidget")
+        
+
+        # Main vertical layout
+        main_layout = QVBoxLayout(self)
+
+        # Image label for weather icon
+        self.violentCrimesLabel = QLabel(self)
+        self.violentCrimesLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.violentCrimesLabel.setWordWrap(True)
+        self.violentCrimesLabel.setProperty("class","boldBody")
+
+        
+        
+        self.violentCrimesLabel.setScaledContents(True)
+        main_layout.addWidget(self.violentCrimesLabel)
+
+        
+        self.violentCrimesLabel.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+       
+        self.violentCrimesLabel.setMinimumSize(1,1)
+        self.setLayout(main_layout)
+        self.setStyleSheet("[class=\"locationInfoWidget\"] {padding: 5px 5px 5px 5px;} ")
+
+    def updateCrime(self):
+        from functions.getCrimeData import getCrimeData
+        self.violentCrimesLabel.setText(f"Violent Crimes In 2023: {getCrimeData(currentLocation)}")
+        
 
 class MainWindow(QMainWindow):
     
@@ -418,6 +451,10 @@ class MainWindow(QMainWindow):
         self.descWidget = DescriptionWidget()
         self.bottomRowWidgetsLayout.addWidget(self.descWidget)
 
+        #Crime Widget
+        self.crimeWidget = CrimeWidget()
+        self.topRowWidgetsLayout.addWidget(self.crimeWidget)
+
         # Adjust margins for the top and bottom row layouts
         self.topRowWidgetsLayout.setContentsMargins(0, 0, 0, 0)  # Remove margins
         self.bottomRowWidgetsLayout.setContentsMargins(0, 0, 0, 0)  # Remove margins
@@ -486,6 +523,7 @@ class MainWindow(QMainWindow):
         self.mapWidget.updateMap()
         self.povertyWidget.updateLabels()
         self.descWidget.updateLabel()
+        self.crimeWidget.updateCrime()
 
     def switch_to_second_page(self):
         """Switch to the second page in the stacked widget."""
@@ -501,7 +539,8 @@ class MainWindow(QMainWindow):
             self.weatherWidget.setVisible(False)
             self.mapWidget.setVisible(False)
             self.povertyWidget.setVisible(False)
-            self.povertyWidget.setVisible(False)
+            self.descWidget.setVisible(False)
+            self.crimeWidget.setVisible(False)
         else:
             self.locationName.setText(location.getAddress())
             currentLocation = location
@@ -509,11 +548,14 @@ class MainWindow(QMainWindow):
             self.mapWidget.updateMap()
             self.povertyWidget.updateLabels()
             self.descWidget.updateLabel()
+            self.crimeWidget.updateCrime()
+            
 
             self.weatherWidget.setVisible(True)
             self.mapWidget.setVisible(True)
             self.povertyWidget.setVisible(True)
             self.descWidget.setVisible(True)
+            self.crimeWidget.setVisible(True)
         self.searchBar.setPlaceholderText("Where's Your Next Spot?")
         self.searchBar.setText("")
         self.blur_effect.setBlurRadius(0)
