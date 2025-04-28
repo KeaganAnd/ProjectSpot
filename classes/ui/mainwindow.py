@@ -53,6 +53,8 @@ class LocationWidget(QGroupBox):
         # Set layout for the QGroupBox
         self.setLayout(main_layout)
         self.setStyleSheet("[class=\"locationInfoWidget\"] {padding: 5px 5px 5px 5px;} ")
+
+    
     
     def clickedLocationBudget(self):
         try:
@@ -128,13 +130,13 @@ class WeatherWidget(QGroupBox):
         self.setLayout(main_layout)
         self.setStyleSheet("[class=\"locationInfoWidget\"] {padding: 5px 5px 5px 5px;} ")
 
-    def updateWeatherLabels(self):
-        if currentLocation != None:
-            self.tempLabel.setText(f"{str(int(currentLocation.getTemperature()))}°F")
-            currentLocation.jsonify()
+    def updateWeatherLabels(self, location):
+        if location != None:
+            self.tempLabel.setText(f"{str(int(location.getTemperature()))}°F")
+            location.jsonify()
             weatherPixmap = QPixmap('classes/ui/imgs/weatherIcons/sun.png')
             self.weatherImageLabel.setPixmap(weatherPixmap)
-            self.precipLabel.setText(f"In the last 7 days: \n{currentLocation.getPrecipitation():.2f}in of precipitation")
+            self.precipLabel.setText(f"In the last 7 days: \n{location.getPrecipitation():.2f}in of precipitation")
 
 class MapWidget(QGroupBox):
     def __init__(self):
@@ -162,9 +164,9 @@ class MapWidget(QGroupBox):
         self.setLayout(main_layout)
         self.setStyleSheet("[class=\"locationInfoWidget\"] {padding: 5px 5px 5px 5px;} ")
 
-    def updateMap(self):
+    def updateMap(self, location):
         from functions.getLocationMap import getLocationMap
-        mapLocation = getLocationMap(currentLocation)
+        mapLocation = getLocationMap(location)
 
         weatherPixmap = QPixmap(mapLocation)
         self.mapImageLabel.setPixmap(weatherPixmap)
@@ -210,10 +212,10 @@ class PovertyWidget(QGroupBox):
         self.setLayout(main_layout)
         self.setStyleSheet("[class=\"locationInfoWidget\"] {padding: 5px 5px 5px 5px;} ")
 
-    def updateLabels(self):
-        if currentLocation.getCountry() == "United States":
+    def updateLabels(self, location):
+        if location.getCountry() == "United States":
             from functions.getPovertyData import getPovertyData
-            data = getPovertyData(currentLocation)
+            data = getPovertyData(location)
             self.medianIncomeLabel.setText(f"Median Income: ${int(data[1][1]):,}")
             self.peopleInPovertyLabel.setText(f"People In Poverty: {int(data[1][2]):,}")
 
@@ -245,11 +247,11 @@ class DescriptionWidget(QGroupBox):
         self.setLayout(main_layout)
         self.setStyleSheet("[class=\"locationInfoWidget\"] {padding: 5px 5px 5px 5px;} ")
 
-    def updateLabel(self):
-        if currentLocation.getCountry() == "United States":
+    def updateLabel(self, location):
+        if location.getCountry() == "United States":
             with open("functions/functionData/stateDescs.json") as file:
                 data = json.load(file)
-                self.descLabel.setText(data[currentLocation.getState()])
+                self.descLabel.setText(data[location.getState()])
             
             print("Updated")
 
@@ -281,11 +283,191 @@ class CrimeWidget(QGroupBox):
         self.setLayout(main_layout)
         self.setStyleSheet("[class=\"locationInfoWidget\"] {padding: 5px 5px 5px 5px;} ")
 
-    def updateCrime(self):
+    def updateCrime(self, location):
         from functions.getCrimeData import getCrimeData
-        self.violentCrimesLabel.setText(f"Violent Crimes In 2023: {getCrimeData(currentLocation)}")
+        self.violentCrimesLabel.setText(f"Violent Crimes In 2023: {getCrimeData(location)}")
         
+class ComparisonWidget(QWidget):
+    def __init__(self, homeWidget):
+        super().__init__()
+        self.homeWidget = homeWidget
+        self.locationMainLayout = QVBoxLayout(self)
+        self.setLayout(self.locationMainLayout)
+        self.locationMainLayout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
+        # Remove margins and spacing
+        self.locationMainLayout.setContentsMargins(0, 0, 0, 0)  # No margins
+        self.locationMainLayout.setSpacing(0)  # No spacing
+
+        # Header section
+        self.header = QGroupBox()
+        self.locationMainLayout.addWidget(self.header)
+        self.header.setMaximumHeight(100)
+        self.header.setProperty("class", "header")
+
+        self.headerLayout = QHBoxLayout(self.header)
+        self.homeButton = QPushButton("Spot Finder")
+        self.searchBar3 = QLineEdit()
+        self.headerLayout.addWidget(self.homeButton)
+        self.headerLayout.addWidget(self.searchBar3)
+        self.headerLayout.setAlignment(Qt.AlignmentFlag.AlignTop)
+
+        # Remove margins and spacing from header layout
+        self.headerLayout.setContentsMargins(0, 0, 0, 0)  # No margins
+        self.headerLayout.setSpacing(0)  # No spacing
+
+        self.homeButton.setProperty("class", "homeButton")
+        self.homeButton.setMaximumWidth(350)
+        self.homeButton.setMinimumHeight(80)
+        self.homeButton.clicked.connect(self.switch_to_another_widget)
+
+        # Body
+        self.locationHead = QGroupBox()
+        self.locationHead.setMaximumHeight(60)
+        self.locationHeadLayout = QHBoxLayout(self.locationHead)  # Use QHBoxLayout for left and right alignment
+        self.locationMainLayout.addWidget(self.locationHead)
+
+        # Remove margins and spacing from location head layout
+        self.locationHeadLayout.setContentsMargins(0, 0, 0, 0)
+        self.locationHeadLayout.setSpacing(0)
+
+        # Left-aligned location name
+        self.leftLocationName = QLabel("Left Location Name")
+        self.leftLocationName.setProperty("class", "header1")
+        self.leftLocationName.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+        self.locationHeadLayout.addWidget(self.leftLocationName)
+        self.leftLocationName.setStyleSheet("padding-left: 10px")
+
+        # Spacer to push the right location name to the right
+        spacer = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        self.locationHeadLayout.addItem(spacer)
+
+        # Right-aligned location name
+        self.rightLocationName = QLabel("Right Location Name")
+        self.rightLocationName.setProperty("class", "header1")
+        self.rightLocationName.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+        self.locationHeadLayout.addWidget(self.rightLocationName)
+        self.rightLocationName.setStyleSheet("padding-right: 10px")
+
+        # Search Bar3
+        self.searchBar3.setStyleSheet("QLineEdit { padding-left: 15px; padding-right: 10px; padding-top: 5px; padding-bottom: 5px; }")
+        self.searchBar3.setPlaceholderText("Where's Your Next Spot?")
+
+        # Widget Container
+        # Group box
+        group_box = QGroupBox("")
+        group_layout = QHBoxLayout(group_box)
+
+        # Combine content1 and content2 into a single scrollable frame
+        combined_frame = QFrame()
+        combined_layout = QHBoxLayout(combined_frame)
+        combined_frame.setStyleSheet("background-color: transparent")
+
+        # First content (content1)
+        content1 = QFrame()
+        content1_layout = QVBoxLayout(content1)
+        content1_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        # Loc1 Widgets
+        self.widgets = {
+            "loc1Weather": WeatherWidget(),
+            "loc1Map": MapWidget(),
+            "loc1Poverty": PovertyWidget(),
+            "loc1Crime": CrimeWidget(),
+            "loc1Desc": DescriptionWidget()
+        }
+        # Add widgets to content1
+        for varName, value in self.widgets.items():
+            value.setMinimumSize(300, 300)
+            value.setMaximumSize(300, 300)
+            content1_layout.addWidget(value)
+
+        # Second content (content2)
+        content2 = QFrame()
+        content2_layout = QVBoxLayout(content2)
+        content2_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        # Loc2 Widgets
+        self.widgets2 = {
+            "loc1Weather": WeatherWidget(),
+            "loc1Map": MapWidget(),
+            "loc1Poverty": PovertyWidget(),
+            "loc1Crime": CrimeWidget(),
+            "loc1Desc": DescriptionWidget()
+        }
+        # Add widgets to content2
+        for varName, value in self.widgets2.items():
+            value.setMinimumSize(300, 300)
+            value.setMaximumSize(300, 300)
+            content2_layout.addWidget(value)
+
+        # Add content1 and content2 to the combined layout
+        combined_layout.addWidget(content1)
+        combined_layout.addWidget(content2)
+
+        # Create a single scroll area for the combined frame
+        scroll_area = QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setWidget(combined_frame)
+        scroll_area.setStyleSheet("QScrollArea {background: transparent; border: none;}")
+
+        # Add the scroll area to the group box layout
+        group_layout.addWidget(scroll_area)
+
+        # Add group box to main layout
+        self.locationMainLayout.addWidget(group_box)
+
+    def switch_to_another_widget(self, target_widget):
+        # Start with the current widget
+        parent = self.parentWidget()
+
+        # Traverse up the widget hierarchy to find the QStackedWidget
+        while parent is not None:
+            if isinstance(parent, QStackedWidget):
+                # Found the QStackedWidget, switch to the target widget
+                parent.setCurrentWidget(self.homeWidget)
+                return
+            parent = parent.parentWidget()
+
+        # If no QStackedWidget is found, print an error or handle it
+        print("QStackedWidget not found in parent hierarchy.")
+    
+    def updateLabels(self):
+        self.leftLocationName.setText(currentLocation.getAddress())
+
+        for varName, widget in self.widgets.items():
+            if isinstance(widget, WeatherWidget):
+                widget.updateWeatherLabels(currentLocation)
+            elif isinstance(widget, MapWidget):
+                widget.updateMap(currentLocation)
+            elif isinstance(widget, PovertyWidget):
+                widget.updateLabels(currentLocation)
+            elif isinstance(widget, DescriptionWidget):
+                widget.updateLabel(currentLocation)
+            elif isinstance(widget, CrimeWidget):
+                widget.updateCrime(currentLocation)
+
+        from main import getLocation, getWeather
+        from functions.getCrimeData import getCrimeData
+        from functions.getLocationMap import getLocationMap
+        from functions.getPovertyData import getPovertyData
+
+        newLocation = getLocation("New York") #Needs to be user controlled
+        getCrimeData(newLocation)
+        getPovertyData(newLocation)
+        getWeather(newLocation)
+
+        self.rightLocationName.setText(newLocation.getAddress())
+        for varName, widget in self.widgets2.items():
+            if isinstance(widget, WeatherWidget):
+                widget.updateWeatherLabels(newLocation)
+            elif isinstance(widget, MapWidget):
+                widget.updateMap(newLocation)
+            elif isinstance(widget, PovertyWidget):
+                widget.updateLabels(newLocation)
+            elif isinstance(widget, DescriptionWidget):
+                widget.updateLabel(newLocation)
+            elif isinstance(widget, CrimeWidget):
+                widget.updateCrime(newLocation)
 class MainWindow(QMainWindow):
     
     def __init__(self, *args, **kwargs):
@@ -458,6 +640,21 @@ class MainWindow(QMainWindow):
         self.crimeWidget = CrimeWidget()
         self.topRowWidgetsLayout.addWidget(self.crimeWidget)
 
+        #Compare Button
+        self.comparisonButton = QPushButton()
+        self.comparisonButton.setIcon(QIcon("classes/ui/imgs/compareButton.png"))
+        self.comparisonButton.setIconSize(self.comparisonButton.size())
+        self.widgetContainerLayout.addChildWidget(self.comparisonButton)
+        self.comparisonButton.setProperty("id", "comparisonButton")
+        self.comparisonButton.setGeometry(self.width() - 90, self.height() // 2 - 60, 60, 60)
+        
+        #Compare button label
+        self.compareButtonLabel = QLabel("Click To Compare To A New Location")
+        self.compareButtonLabel.setVisible(False)
+        self.compareButtonLabel.setGeometry(self.width() - 300, self.height() // 2 - 60, 300, 60)
+        self.comparisonButton.clicked.connect(self.compareButtonClicked)
+        self.widgetContainerLayout.addChildWidget(self.compareButtonLabel)
+
         # Adjust margins for the top and bottom row layouts
         self.topRowWidgetsLayout.setContentsMargins(0, 0, 0, 0)  # Remove margins
         self.bottomRowWidgetsLayout.setContentsMargins(0, 0, 0, 0)  # Remove margins
@@ -473,14 +670,19 @@ class MainWindow(QMainWindow):
         self.blur_effect = QGraphicsBlurEffect(self)
         self.blur_effect.setBlurRadius(0)
         self.stacked_widget.setGraphicsEffect(self.blur_effect)
+
+        self.comparePage = ComparisonWidget(self.centralWidget)
         
         # Add pages to stacked widget
         self.stacked_widget.addWidget(self.centralWidget)  # First page
         self.stacked_widget.addWidget(self.locationPage)  # Second page
+        self.stacked_widget.addWidget(self.comparePage)
 
 
         # Default page to show
         self.stacked_widget.setCurrentWidget(self.centralWidget)
+
+    
 
     def createLocationWidgets(self):
         try: #Opens json file, parses it, and generates the form for the user to select a location
@@ -504,6 +706,12 @@ class MainWindow(QMainWindow):
         self.searchBar.setText(location_name)
         self.switch_to_second_page()
 
+    def compareButtonClicked(self):
+        """Switch to the compare page and update its labels."""
+        self.stacked_widget.setCurrentWidget(self.comparePage)
+        if currentLocation is not None:
+            self.comparePage.updateLabels()
+
     def keyPressEvent(self, event):
         """Handle key press events."""
         if event.key() == Qt.Key.Key_Return:  # Check if the Enter key was pressed
@@ -522,11 +730,11 @@ class MainWindow(QMainWindow):
         currentLocation = location
         getWeather(location)
         self.locationName.setText(location.getAddress())
-        self.weatherWidget.updateWeatherLabels()
-        self.mapWidget.updateMap()
-        self.povertyWidget.updateLabels()
-        self.descWidget.updateLabel()
-        self.crimeWidget.updateCrime()
+        self.weatherWidget.updateWeatherLabels(currentLocation)
+        self.mapWidget.updateMap(currentLocation)
+        self.povertyWidget.updateLabels(currentLocation)
+        self.descWidget.updateLabel(currentLocation)
+        self.crimeWidget.updateCrime(currentLocation)
 
     def switch_to_second_page(self):
         """Switch to the second page in the stacked widget."""
@@ -547,11 +755,11 @@ class MainWindow(QMainWindow):
         else:
             self.locationName.setText(location.getAddress())
             currentLocation = location
-            self.weatherWidget.updateWeatherLabels()
-            self.mapWidget.updateMap()
-            self.povertyWidget.updateLabels()
-            self.descWidget.updateLabel()
-            self.crimeWidget.updateCrime()
+            self.weatherWidget.updateWeatherLabels(currentLocation)
+            self.mapWidget.updateMap(currentLocation)
+            self.povertyWidget.updateLabels(currentLocation)
+            self.descWidget.updateLabel(currentLocation)
+            self.crimeWidget.updateCrime(currentLocation)
             
 
             self.weatherWidget.setVisible(True)

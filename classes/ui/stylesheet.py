@@ -85,6 +85,18 @@ QGroupBox {
        border-bottom: 3px solid white;
                
        }
+[id="comparisonButton"] {
+           width: 60px;
+           height: 60px;
+           background-color: white;
+           border-radius: 10px;
+       }
+           
+[id="comparisonButton"]:hover {
+           background-color: #c4c4c4;
+           border-radius: 10px;
+       }
+
 [class="locationInfoWidget"] {
        border: 2px solid white;
        border-radius: 10px;
