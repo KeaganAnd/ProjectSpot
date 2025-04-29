@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 
 load_dotenv("keys.env")
 
+#This just converts the state saved in the location object into an abbreviation which is needed to search the API
 state_abbreviations = {
     "Alabama": "AL",
     "Alaska": "AK",
