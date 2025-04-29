@@ -24,6 +24,9 @@ import sys
 from PyQt6.QtWidgets import *
 from classes.ui.mainwindow import MainWindow
 
+'''DB Components'''
+from classes.database import init_db
+
 
 load_dotenv("keys.env") #Loads keys from keys.env | Keys can be accessed with os.genenv("KEYNAME")
 
@@ -92,10 +95,14 @@ def getWeather(location: Location):
 
     location.setCurrentTime(response.json()["current"]["time"][-5:])
 
+    # Save to database
+    if hasattr(location, 'save_weather_data'):
+        location.save_weather_data()
+
 
 if __name__ == "__main__":
     '''Main Loop Handles The UI Setup'''
-
+    init_db()  # Initialize database when app starts
     app = QApplication(sys.argv)
     app.setStyleSheet(returnStyleSheet())
 
