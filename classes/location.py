@@ -1,5 +1,6 @@
 import json
 import os
+from classes.database import get_db_connection
 
 class Location:
     def __init__(self, address: str, country: str = "N/A", state: str = "N/A", coordinates: dict = {"lat":0,"lng":0}, temperature: float = 0.0, precipitation: float = 0.0, currentTime: str = "", population: int = 0):
@@ -99,3 +100,41 @@ class Location:
 
 def loadObjectFromJson(location : dict): #This function just turns a dict into a Location object used in the get recent locations function in main.py
     return(Location(address=location["address"],coordinates={"lat" : location["Coordinates"][0],"lng" : location["Coordinates"][1]},temperature=location["Temperature"],precipitation=location["Precipitation"],currentTime=location["Current Time"],country=location["Country"], state=location["State"]))
+
+def save_to_db(self):
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT INTO locations 
+            (formatted_address, latitude, longitude, country, state)
+            VALUES (?, ?, ?, ?, ?)
+            RETURNING id
+        ''', (
+            self.address,
+            self.coordinates['lat'],
+            self.coordinates['lng'],
+            self.country,
+            self.state
+        ))
+        self.db_id = cursor.fetchone()[0]
+        conn.commit()
+        return self.db_id
+
+def save_weather_data(self):
+    if not self.db_id:
+        return False
+        
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT INTO weather_data
+            (location_id, temperature, precipitation, observation_time)
+            VALUES (?, ?, ?, ?)
+        ''', (
+            self.db_id,
+            self.temperature,
+            self.precipitation,
+            self.current_time
+        ))
+        conn.commit()
+        return True

@@ -59,6 +59,8 @@ state_abbreviations = {
     "Wyoming": "WY"
 }
 
+requests.packages.urllib3.util.connection.HAS_IPV6 = False
+
 def getCrimeData(location: Location) -> int:
     '''If the location is in the US then it will return crime statistics for the state.
     Sums up all the violent crimes in 2023 and returns the int
