@@ -775,6 +775,9 @@ class MainWindow(QMainWindow):
         self.descWidget.updateLabel(currentLocation)
         self.crimeWidget.updateCrime(currentLocation)
 
+        currentLocation.save_to_db()
+        currentLocation.save_weather_data()
+
     def switch_to_second_page(self):
         """Switch to the second page in the stacked widget."""
         from main import getLocation,getWeather
@@ -822,6 +825,9 @@ class MainWindow(QMainWindow):
         self.searchBar.setText("")
         self.blur_effect.setBlurRadius(0)
         QCoreApplication.processEvents()
+
+        currentLocation.save_to_db()
+        currentLocation.save_weather_data()
 
     def switch_to_home_page(self):
         self.stacked_widget.setCurrentWidget(self.centralWidget)
