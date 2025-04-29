@@ -4,6 +4,8 @@ from PyQt6.QtCore import *
 from ..location import loadObjectFromJson
 import json
 currentLocation = None
+mode = "new" #Mode can be new which searches for a completely new location and "compare" will search a location to compare
+likeLocation = False
 class LocationWidget(QGroupBox):
     '''The location widgets to recall previous locations on the home page'''
     locationClickedSignal = pyqtSignal(str) # Define the signal
@@ -288,9 +290,11 @@ class CrimeWidget(QGroupBox):
         self.violentCrimesLabel.setText(f"Violent Crimes In 2023: {getCrimeData(location)}")
         
 class ComparisonWidget(QWidget):
-    def __init__(self, homeWidget):
+    def __init__(self, homeWidget, locationWidget, mainWindow):
         super().__init__()
         self.homeWidget = homeWidget
+        self.mainWindow = mainWindow
+        self.locationWidget = locationWidget
         self.locationMainLayout = QVBoxLayout(self)
         self.setLayout(self.locationMainLayout)
         self.locationMainLayout.setAlignment(Qt.AlignmentFlag.AlignTop)
@@ -424,14 +428,25 @@ class ComparisonWidget(QWidget):
         while parent is not None:
             if isinstance(parent, QStackedWidget):
                 # Found the QStackedWidget, switch to the target widget
-                parent.setCurrentWidget(self.homeWidget)
+                parent.setCurrentWidget(target_widget)
                 return
             parent = parent.parentWidget()
 
         # If no QStackedWidget is found, print an error or handle it
         print("QStackedWidget not found in parent hierarchy.")
+
+    def keyPressEvent(self, event):
+        """Handle key press events."""
+        if event.key() == Qt.Key.Key_Return:  # Check if the Enter key was pressed
+            from main import getLocation
+            if len(self.searchBar3.text()) > 0:
+                self.mainWindow.searchBar2.setText(self.searchBar3.text())
+                self.mainWindow.update_location_page()
+                self.mainWindow.searchBar2.setText("")
+                self.switch_to_another_widget(self.locationWidget)
+
     
-    def updateLabels(self):
+    def updateLabels(self, newLocation):
         self.leftLocationName.setText(currentLocation.getAddress())
 
         for varName, widget in self.widgets.items():
@@ -446,12 +461,11 @@ class ComparisonWidget(QWidget):
             elif isinstance(widget, CrimeWidget):
                 widget.updateCrime(currentLocation)
 
-        from main import getLocation, getWeather
+        from main import getWeather
         from functions.getCrimeData import getCrimeData
-        from functions.getLocationMap import getLocationMap
         from functions.getPovertyData import getPovertyData
 
-        newLocation = getLocation("New York") #Needs to be user controlled
+        
         getCrimeData(newLocation)
         getPovertyData(newLocation)
         getWeather(newLocation)
@@ -643,17 +657,28 @@ class MainWindow(QMainWindow):
         #Compare Button
         self.comparisonButton = QPushButton()
         self.comparisonButton.setIcon(QIcon("classes/ui/imgs/compareButton.png"))
-        self.comparisonButton.setIconSize(self.comparisonButton.size())
+        
         self.widgetContainerLayout.addChildWidget(self.comparisonButton)
         self.comparisonButton.setProperty("id", "comparisonButton")
         self.comparisonButton.setGeometry(self.width() - 90, self.height() // 2 - 60, 60, 60)
-        
-        #Compare button label
-        self.compareButtonLabel = QLabel("Click To Compare To A New Location")
-        self.compareButtonLabel.setVisible(False)
-        self.compareButtonLabel.setGeometry(self.width() - 300, self.height() // 2 - 60, 300, 60)
+        self.comparisonButton.setIconSize(self.comparisonButton.size())
         self.comparisonButton.clicked.connect(self.compareButtonClicked)
-        self.widgetContainerLayout.addChildWidget(self.compareButtonLabel)
+
+        # Heart Button
+        self.heartButton = QPushButton()
+        self.heartButton.setProperty("id","heart")
+        self.widgetContainerLayout.addChildWidget(self.heartButton) #Determines button state
+        global likeLocation 
+        if likeLocation:
+            self.heartButton.setIcon(QIcon("classes/ui/imgs/heart.png"))
+            likeLocation = False
+        else:
+            self.heartButton.setIcon(QIcon("classes/ui/imgs/heartEmpty.png"))
+            likeLocation = True
+        self.heartButton.clicked.connect(self.heartButtonClicked)
+        
+        self.heartButton.setGeometry(self.width() - 90, self.height() // 2 + 60, 60, 60)
+        self.heartButton.setIconSize(QSize(55,55))
 
         # Adjust margins for the top and bottom row layouts
         self.topRowWidgetsLayout.setContentsMargins(0, 0, 0, 0)  # Remove margins
@@ -671,7 +696,7 @@ class MainWindow(QMainWindow):
         self.blur_effect.setBlurRadius(0)
         self.stacked_widget.setGraphicsEffect(self.blur_effect)
 
-        self.comparePage = ComparisonWidget(self.centralWidget)
+        self.comparePage = ComparisonWidget(self.centralWidget, self.locationPage, self)
         
         # Add pages to stacked widget
         self.stacked_widget.addWidget(self.centralWidget)  # First page
@@ -703,20 +728,34 @@ class MainWindow(QMainWindow):
         
     def handleLocationClicked(self, location_name):
         # Access switch_to_second_page here
+
         self.searchBar.setText(location_name)
         self.switch_to_second_page()
 
+
     def compareButtonClicked(self):
         """Switch to the compare page and update its labels."""
-        self.stacked_widget.setCurrentWidget(self.comparePage)
-        if currentLocation is not None:
-            self.comparePage.updateLabels()
+        self.stacked_widget.setCurrentWidget(self.centralWidget)
+        self.titleLabel.setText("Where do you want to compare?")
+        global mode
+        mode = "compare"
+
+    def heartButtonClicked(self):
+        global likeLocation
+        if likeLocation:
+            self.heartButton.setIcon(QIcon("classes/ui/imgs/heart.png"))
+            likeLocation = False
+        else:
+            self.heartButton.setIcon(QIcon("classes/ui/imgs/heartEmpty.png"))
+            likeLocation = True
+
+        
 
     def keyPressEvent(self, event):
         """Handle key press events."""
         if event.key() == Qt.Key.Key_Return:  # Check if the Enter key was pressed
             
-            if len(self.searchBar.text()) > 0: #If the home page bar is typed in
+            if (len(self.searchBar.text()) > 0) or (len(self.searchBar.text()) > 0): #If the home page bar is typed in
                 self.switch_to_second_page()  # Switch to the second page if text is entered
             elif len(self.searchBar2.text()) > 0:
                 self.update_location_page()
@@ -741,32 +780,44 @@ class MainWindow(QMainWindow):
         from main import getLocation,getWeather
         self.blur_effect.setBlurRadius(5)
         QCoreApplication.processEvents()
-        location = getLocation(self.searchBar.text())
-        getWeather(location)
-        self.stacked_widget.setCurrentWidget(self.locationPage)
-        global currentLocation
-        if location.getAddress() == "N/A":
-            self.locationName.setText("Sorry! We weren't able to find this location.")
-            self.weatherWidget.setVisible(False)
-            self.mapWidget.setVisible(False)
-            self.povertyWidget.setVisible(False)
-            self.descWidget.setVisible(False)
-            self.crimeWidget.setVisible(False)
-        else:
-            self.locationName.setText(location.getAddress())
-            currentLocation = location
-            self.weatherWidget.updateWeatherLabels(currentLocation)
-            self.mapWidget.updateMap(currentLocation)
-            self.povertyWidget.updateLabels(currentLocation)
-            self.descWidget.updateLabel(currentLocation)
-            self.crimeWidget.updateCrime(currentLocation)
-            
 
-            self.weatherWidget.setVisible(True)
-            self.mapWidget.setVisible(True)
-            self.povertyWidget.setVisible(True)
-            self.descWidget.setVisible(True)
-            self.crimeWidget.setVisible(True)
+        if len(self.comparePage.searchBar3.text()) > 0:
+            location = getLocation(self.comparePage.searchBar3.text())
+        else:
+            location = getLocation(self.searchBar.text())
+        global mode
+        if mode == "new": 
+            getWeather(location)
+            self.stacked_widget.setCurrentWidget(self.locationPage)
+            global currentLocation
+            if location.getAddress() == "N/A":
+                self.locationName.setText("Sorry! We weren't able to find this location.")
+                self.weatherWidget.setVisible(False)
+                self.mapWidget.setVisible(False)
+                self.povertyWidget.setVisible(False)
+                self.descWidget.setVisible(False)
+                self.crimeWidget.setVisible(False)
+            else:
+                self.locationName.setText(location.getAddress())
+                currentLocation = location
+                self.weatherWidget.updateWeatherLabels(currentLocation)
+                self.mapWidget.updateMap(currentLocation)
+                self.povertyWidget.updateLabels(currentLocation)
+                self.descWidget.updateLabel(currentLocation)
+                self.crimeWidget.updateCrime(currentLocation)
+                
+
+                self.weatherWidget.setVisible(True)
+                self.mapWidget.setVisible(True)
+                self.povertyWidget.setVisible(True)
+                self.descWidget.setVisible(True)
+                self.crimeWidget.setVisible(True)
+        elif mode == "compare": #If the app is in compare mode do this logic
+            if currentLocation is not None:
+                self.comparePage.updateLabels(location)
+                self.stacked_widget.setCurrentWidget(self.comparePage)
+                mode = 'new'
+
         self.searchBar.setPlaceholderText("Where's Your Next Spot?")
         self.searchBar.setText("")
         self.blur_effect.setBlurRadius(0)
@@ -776,6 +827,7 @@ class MainWindow(QMainWindow):
         self.stacked_widget.setCurrentWidget(self.centralWidget)
         self.searchBar2.setText("")
         self.createLocationWidgets()
+        self.titleLabel.setText("Spot Finder")
         
 
 def clear_layout(layout):

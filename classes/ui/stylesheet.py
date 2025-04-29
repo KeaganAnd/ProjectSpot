@@ -86,16 +86,23 @@ QGroupBox {
                
        }
 [id="comparisonButton"] {
-           width: 60px;
-           height: 60px;
+           background-color: transparent;
+           border-radius: 10px;
+       }
+    
+[id="comparisonButton"]:hover {
            background-color: white;
            border-radius: 10px;
        }
            
-[id="comparisonButton"]:hover {
+[id="heart"] {
+           background-color: transparent;
+           border-radius: 10px;
+       }     
+[id="heart"]:hover {
            background-color: #c4c4c4;
            border-radius: 10px;
-       }
+       }     
 
 [class="locationInfoWidget"] {
        border: 2px solid white;

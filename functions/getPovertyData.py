@@ -4,6 +4,8 @@ import json
 import os
 from dotenv import load_dotenv
 
+requests.packages.urllib3.util.connection.HAS_IPV6 = False
+
 def getPovertyData(location: Location) -> list:
     '''https://api.census.gov/data/timeseries/poverty/saipe?get=NAME,SAEMHI_PT,SAEPOVALL_PT&for=state:01&YEAR=2023
     
