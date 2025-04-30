@@ -1,3 +1,6 @@
+'''PyQt6 takes in a stylesheet very similar to css however, it can't take in
+actual css documents. It needs a string.'''
+
 def returnStyleSheet():
     return("""
 [class="header1"] {
@@ -85,6 +88,25 @@ QGroupBox {
        border-bottom: 3px solid white;
                
        }
+[id="comparisonButton"] {
+           background-color: transparent;
+           border-radius: 10px;
+       }
+    
+[id="comparisonButton"]:hover {
+           background-color: white;
+           border-radius: 10px;
+       }
+           
+[id="heart"] {
+           background-color: transparent;
+           border-radius: 10px;
+       }     
+[id="heart"]:hover {
+           background-color: #c4c4c4;
+           border-radius: 10px;
+       }     
+
 [class="locationInfoWidget"] {
        border: 2px solid white;
        border-radius: 10px;
