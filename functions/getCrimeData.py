@@ -2,6 +2,7 @@ import requests
 from classes.location import Location
 import os
 from dotenv import load_dotenv
+from functions.logHandler import writeLog
 
 load_dotenv("keys.env")
 
@@ -66,7 +67,7 @@ def getCrimeData(location: Location) -> int:
     Sums up all the violent crimes in 2023 and returns the int
     Uses Census.gov'''
     if location.getCountry() == "United States":
-        print("Loading Crime Data")
+        writeLog("Loading Crime Data")
         
         request = requests.get(f"https://api.usa.gov/crime/fbi/cde/arrest/state/{state_abbreviations[location.getState()]}/all?type=totals&from=01-2023&to=01-2024&API_KEY={os.getenv("FBI")}",timeout=3)
 
@@ -74,4 +75,5 @@ def getCrimeData(location: Location) -> int:
 
         violentCrimeSum = offenses["Rape"]+offenses["Rape (Legacy)"]+offenses["Robbery"]+offenses["Aggravated Assault"]+offenses["Murder and Nonnegligent Homicide"]+offenses["Manslaughter by Negligence"]
 
+        writeLog("Done Loading Crime Data")
         return(violentCrimeSum)

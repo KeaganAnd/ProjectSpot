@@ -3,6 +3,7 @@ from classes.location import Location
 import json
 import os
 from dotenv import load_dotenv
+from functions.logHandler import writeLog
 
 requests.packages.urllib3.util.connection.HAS_IPV6 = False
 
@@ -16,7 +17,7 @@ def getPovertyData(location: Location) -> list:
     '''
     load_dotenv("keys.env")
     if location.getCountry() == "United States":
-        print("Loading Poverty Data")
+        writeLog("Loading Poverty Data")
         
         with open("functions/functionData/stateFips.json", "r") as file:
             fipsDict = json.load(file) #Loads the dictionary of state codes needed for API
@@ -24,6 +25,7 @@ def getPovertyData(location: Location) -> list:
             try:
                 stateID = fipsDict[location.getState()]
             except KeyError:
+                writeLog("Failed Getting Poverty Data: Location Object Missing A State")
                 return(["Error"])
                 
 
@@ -46,10 +48,10 @@ def getPovertyData(location: Location) -> list:
 
             request = requests.get(f"https://api.census.gov/data/timeseries/poverty/saipe?get=NAME,SAEMHI_PT,SAEPOVALL_PT&for=state:{stateID}&YEAR=2023&key={os.getenv("USCensus")}", headers=headers, timeout=2)
             if request.status_code == 200:
-                print("Done Loading Poverty Data")
+                writeLog("Done Loading Poverty Data")
                 return(request.json())
             else:
-                print("Error Loading Poverty Data | Cannot Connect To API")
+                writeLog("Error Loading Poverty Data | Cannot Connect To API")
                 return([])
         
 
