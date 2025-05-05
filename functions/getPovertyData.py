@@ -1,0 +1,57 @@
+import requests
+from classes.location import Location
+import json
+import os
+from dotenv import load_dotenv
+from functions.logHandler import writeLog
+
+requests.packages.urllib3.util.connection.HAS_IPV6 = False
+
+def getPovertyData(location: Location) -> list:
+    '''https://api.census.gov/data/timeseries/poverty/saipe?get=NAME,SAEMHI_PT,SAEPOVALL_PT&for=state:01&YEAR=2023
+    
+    https://www.census.gov/data/developers/data-sets/Poverty-Statistics.html
+
+    Refrence for variable names:
+    https://api.census.gov/data/timeseries/poverty/saipe/variables.html
+    '''
+    load_dotenv("keys.env")
+    if location.getCountry() == "United States":
+        writeLog("Loading Poverty Data")
+        
+        with open("functions/functionData/stateFips.json", "r") as file:
+            fipsDict = json.load(file) #Loads the dictionary of state codes needed for API
+
+            try:
+                stateID = fipsDict[location.getState()]
+            except KeyError:
+                writeLog("Failed Getting Poverty Data: Location Object Missing A State")
+                return(["Error"])
+                
+
+            headers = {
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                "Accept-Encoding": "gzip, deflate, br, zstd",
+                "Accept-Language": "en-US,en;q=0.5",
+                "Connection": "keep-alive",
+                "Host": "api.census.gov",
+                "Priority": "u=0, i",
+                "Sec-Fetch-Dest": "document",
+                "Sec-Fetch-Mode": "navigate",
+                "Sec-Fetch-Site": "none",
+                "Sec-Fetch-User": "?1",
+                "Upgrade-Insecure-Requests": "1",
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:137.0) Gecko/20100101 Firefox/137.0"
+            }
+            
+            
+
+            request = requests.get(f"https://api.census.gov/data/timeseries/poverty/saipe?get=NAME,SAEMHI_PT,SAEPOVALL_PT&for=state:{stateID}&YEAR=2023&key={os.getenv('USCensus')}", headers=headers, timeout=2)
+            if request.status_code == 200:
+                writeLog("Done Loading Poverty Data")
+                return(request.json())
+            else:
+                writeLog("Error Loading Poverty Data | Cannot Connect To API")
+                return([])
+        
+
