@@ -50,7 +50,7 @@
     height: 80px;
 }
 .navbar__links {
-    color: #fff;
+    color: #f1fcf1;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -76,7 +76,7 @@
     border: none;
     outline: none;
     border-radius: 4px;
-    color: #fff;
+    color: #f1fcf1;
 }
 .button:hover {
     color: #E0FFE1;
@@ -126,7 +126,7 @@
         height: 3px;
         margin: 5px auto;
         transition: all 0.3s ease-in-out;
-        background: #fff;
+        background: #f1fcf1;
     }
     .navbar__item {
         width: 100%;
@@ -168,9 +168,17 @@
         transform: translateY(-8px) rotate(-45deg);
     }
 }
+
+/* INDEX ---------------------------------------------------------------------------------------------------- INDEX */
+
 /* Hero */
 .main {
-    background-color: #f1fcf1;
+    position: relative;
+    background-image: url('images/home_bg.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 100vh;
 }
 .main__container {
     display: grid;
@@ -179,28 +187,28 @@
     justify-self: center;
     margin: 0 auto;
     height: 90vh;
-    background-color: #f1fcf1;
     z-index: 1;
     width: 100%;
     max-width: 1300px;
     padding: 0 50px;
 }
 .main__content h1 {
-    font-size: 2rem;
-    color:#8FB98F;
+    font-size: 1.5rem;
+    color:#f1fcf1;
 }
 .main__content h2 {
-    font-size: 3rem;
-    background: -webkit-linear-gradient(90deg, #A2D1A2, #131313);
+    font-size: 4rem;
+    background: -webkit-linear-gradient(90deg, #E0FFE1, #A2D1A2);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-size: 100%;
+    -webkit-text-stroke: 1px #8FB98F;
 }
 .main__content p {
     margin-top: 1rem;
     font-size: 1rem;
     font-weight: 700;
-    color: #131313;
+    color: #f1fcf1;
 }
 .main__btn {
     font-size: 1rem;
@@ -208,7 +216,7 @@
     padding: 14px 32px;
     border: none;
     border-radius: 4px;
-    color: #fff;
+    color: #f1fcf1;
     margin-top: 2rem;
     cursor: pointer;
     position: relative;
@@ -218,7 +226,7 @@
 .main__btn a {
     position: relative;
     z-index: 2;
-    color: #fff;
+    color: #f1fcf1;
     text-decoration: none;
 }
 .main__btn:after {
@@ -229,7 +237,7 @@
     width: 0;
     height: 100%;
     background: #8FB98F;
-    color: #fff;
+    color: #f1fcf1;
     transition: all .5s;
     border-radius: 3px;
 }
@@ -238,13 +246,6 @@
 }
 .main__btn:hover:after {
     width: 100%;
-}
-.main__img--container {
-    text-align: center;
-}
-#main__img {
-    height: 80%;
-    width: 80%;
 }
 @media screen and (max-width: 768px) {
     .main__container {
@@ -291,17 +292,24 @@
 }
 /* Services */
 .services {
-    background: #141414;
+    position: relative;
+    background-image: 
+        linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+        url('images/cards_bg.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
-    height: 100vh;
+    overflow: hidden;
 }
 .services h1 {
     margin-top: 3rem;
     margin-bottom: 2rem;
     font-size: 2.5rem;
-    background: -webkit-linear-gradient(90deg, #E0FFE1, #8FB98F);
+    background: -webkit-linear-gradient(90deg, #8FB98F, #f1fcf1);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-size: 100%;
@@ -315,14 +323,14 @@
     height: 525px;
     width: 400px;
     border-radius: 4px;
-    background-image: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(17,17,17,0.6) 100%), url("images/pic2.jpg");
+    background-image: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(17,17,17,0.6) 100%), url("images/card1.jpg");
     background-size: cover;
     position: relative;
-    color: #fff;
+    color: #f1fcf1;
     transition: 0.2s ease-in;
 }
 .services__card:nth-child(2) {
-    background-image: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(17,17,17,0.6) 100%), url("images/pic3.jpg");
+    background-image: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(17,17,17,0.6) 100%), url("images/card2.jpg");
 }
 .services h2 {
     color: #f1fcf1;
@@ -352,7 +360,6 @@
 }
 .services__card:hover {
     transform: scale(1.075);
-    cursor: pointer;
 }
 .services__card a {
     position: relative;
@@ -383,4 +390,117 @@
     .services__card {
         width: 300px;
     }
+}
+
+/* ABOUT ---------------------------------------------------------------------------------------------------- ABOUT */
+
+.about {
+    position: relative;
+    background-image: url('images/about_bg.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 100vh;
+    overflow: hidden;
+}
+.about::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    pointer-events: none;
+    z-index: 1;
+}
+.about__container {
+    position: relative; /* Makes sure it's above the ::before */
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center; /* Center vertically */
+    text-align: center;
+    max-width: 1100px;
+    margin: 0 auto;
+    height: 100%;
+    gap: 40px;
+    padding: 0 20px;
+}
+
+.about__content h1 {
+    font-size: 2rem;
+    background: -webkit-linear-gradient(90deg, #8FB98F, #f1fcf1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 100%;
+    margin-top: 10px;
+}
+.about__content p {
+    font-size: 1rem;
+    font-weight: 500;
+    line-height: 1.6;
+    max-width: 800px;
+    margin: 0 auto 30px;
+    color: #f1fcf1;
+}
+
+/* DOWNLOAD ---------------------------------------------------------------------------------------------------- DOWNLOAD */
+
+.dwnld {
+    position: relative;
+    background-image: url('images/dwnld_bg.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 100vh;
+    z-index: 0; /* optional for clarity */
+    overflow: hidden; /* in case content bleeds outside */
+}
+.dwnld__container {
+    display: grid;
+    align-items: center;
+    justify-self: end;
+    margin: 0 auto;
+    height: 90vh;
+    z-index: 1;
+    width: 100%;
+    max-width: 1300px;
+    padding: 0 50px;
+}
+.dwnld__content {
+    text-align: center;
+}
+.dwnld__content h1 {
+    font-size: 3.5rem;
+    background: -webkit-linear-gradient(90deg, #f1fcf1, #8FB98F);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 100%;
+    margin-bottom: 10px;
+    -webkit-text-stroke: 1px #8FB98F;
+}
+.dwnld__content p {
+    font-size: 1rem;
+    font-weight: 500;
+    line-height: 1.6;
+    margin: 0 auto 30px;
+}
+.dwnld__btn {
+    background-color: #131313;
+    color: #f1fcf1;
+    padding: 25px 50px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: transform 0.3s ease;
+    opacity: .9;
+}
+.dwnld__btn:hover {
+    color: #E0FFE1;
+    transform: scale(1.075);
 }
