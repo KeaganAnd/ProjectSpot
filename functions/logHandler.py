@@ -1,7 +1,7 @@
 import datetime
 
 # Get current date and time
-now = str(datetime.datetime.now()).replace(" ","_")
+now = str(datetime.datetime.now()).replace(" ","_").replace(":",".")
 with open(f"logs/{now}.log", "w") as file:
     file.close()
 
