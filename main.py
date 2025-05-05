@@ -112,6 +112,7 @@ if __name__ == "__main__":
     '''Main Loop Handles The UI Setup'''
 
     writeLog("Program Started")
+    
     init_db()  # Initialize database when app starts
     app = QApplication(sys.argv)
     app.setStyleSheet(returnStyleSheet())
