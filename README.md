@@ -1,5 +1,13 @@
 # Spot Finder
 Team Spot 2025
 
+Run *main.py*
+
 Keagan:
-Ignore everything in the tools and json folders they're not implemented yet
+
+
+# Notes
+
+inspectWindow.bat
+
+Opens the ui in a chrome dev tools type environment
