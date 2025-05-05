@@ -1,4 +1,8 @@
 import datetime
+import os
+
+if not os.path.exists("logs"):
+    os.makedirs("logs")
 
 # Get current date and time
 now = str(datetime.datetime.now()).replace(" ","_").replace(":",".")
