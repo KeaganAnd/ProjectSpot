@@ -2,18 +2,31 @@ from PyQt6.QtGui import *
 from PyQt6.QtWidgets import *
 from PyQt6.QtCore import *
 from ..location import loadObjectFromJson
+from ..location import Location
 import json
+
 currentLocation = None
+
 mode = "new" #Mode can be new which searches for a completely new location and "compare" will search a location to compare
 likeLocation = False
+currentUser = None
+
+
+
+
+
+
 class LocationWidget(QGroupBox):
     '''The location widgets to recall previous locations on the home page'''
     locationClickedSignal = pyqtSignal(str) # Define the signal
 
-    def __init__(self):
+    def __init__(self, type = "normal", mainObj = None):
         super().__init__("")
         self.setMaximumWidth(400)
         self.setProperty("class", "locationInfoWidget")
+
+        self._type = type
+        self._mainObj = mainObj
 
         # Main vertical layout
         main_layout = QVBoxLayout(self)
@@ -21,10 +34,9 @@ class LocationWidget(QGroupBox):
         # Horizontal layout for image and temperature
         top_layout = QHBoxLayout()
 
-        # Image label for weather icon
 
 
-        # Temperature label
+        #Top Label
         self.nameLabel = QPushButton("Location", self)
         self.nameLabel.setProperty("class","header1")
         self.nameLabel.setProperty("class2","locationButton")
@@ -56,28 +68,39 @@ class LocationWidget(QGroupBox):
         self.setLayout(main_layout)
         self.setStyleSheet("[class=\"locationInfoWidget\"] {padding: 5px 5px 5px 5px;} ")
 
-    
+
     
     def clickedLocationBudget(self):
-        try:
-            with open("cachedLocations.json", "r") as file:
-                loadedFile = json.load(file)
+        if self._type == "normal":
+            try:
+                with open("cachedLocations.json", "r") as file:
+                    loadedFile = json.load(file)
 
-                for location in loadedFile:
-                    if location["address"].find(self.nameLabel.text()) != -1:
-                        self.locationClickedSignal.emit(self.nameLabel.text()) # Emit signal
-                        return #stop searching after finding the first match
-        except FileNotFoundError:
-            pass
-
-    def updateLocationLabels(self, location):
-        
-        if location.getAddress().find(",") != -1:
-            self.nameLabel.setText(location.getAddress()[:location.getAddress().find(",")])
-            self.restOfAddLabel.setText(location.getAddress()[location.getAddress().find(",")+2:])
+                    for location in loadedFile:
+                        if location["address"].find(self.nameLabel.text()) != -1:
+                            self.locationClickedSignal.emit(self.nameLabel.text()) # Emit signal
+                            return #stop searching after finding the first match
+            except FileNotFoundError:
+                pass
         else:
-            self.nameLabel.setText(location.getAddress())
-            self.restOfAddLabel.setText("")
+            self._mainObj.searchBar.setText(self.nameLabel.text())
+            self._mainObj.switch_to_second_page()
+            global likeLocation
+            likeLocation = True
+            
+
+    def updateLocationLabels(self, location, menuButton = False):
+        if not menuButton:
+            if location.getAddress().find(",") != -1:
+                self.nameLabel.setText(location.getAddress()[:location.getAddress().find(",")])
+                self.restOfAddLabel.setText(location.getAddress()[location.getAddress().find(",")+2:])
+            else:
+                self.nameLabel.setText(location.getAddress())
+                self.restOfAddLabel.setText("")
+        else:
+            self.nameLabel.setText("Liked Locations")
+            self.restOfAddLabel.setText("View liked locations here")
+            self.setStyleSheet("[class2=\"locationButton\"]:hover {color: #FFC0CB}")
 
 class WeatherWidget(QGroupBox):
     def __init__(self):
@@ -288,7 +311,121 @@ class CrimeWidget(QGroupBox):
     def updateCrime(self, location):
         from functions.getCrimeData import getCrimeData
         self.violentCrimesLabel.setText(f"Violent Crimes In 2023: {getCrimeData(location)}")
-        
+
+class LikesWidget(QWidget):
+    def __init__(self, homeWidget, locationWidget, mainWindow):
+        super().__init__()
+        self.homeWidget = homeWidget
+        self.mainWindow = mainWindow
+        self.locationWidget = locationWidget
+        self.locationMainLayout = QVBoxLayout(self)
+        self.setLayout(self.locationMainLayout)
+        self.locationMainLayout.setAlignment(Qt.AlignmentFlag.AlignTop)
+
+        # Remove margins and spacing
+        self.locationMainLayout.setContentsMargins(0, 0, 0, 0)  # No margins
+        self.locationMainLayout.setSpacing(0)  # No spacing
+
+        # Header section
+        self.header = QGroupBox()
+        self.locationMainLayout.addWidget(self.header)
+        self.header.setMaximumHeight(100)
+        self.header.setProperty("class", "header")
+
+        self.headerLayout = QHBoxLayout(self.header)
+        self.homeButton = QPushButton("Spot Finder")
+        self.searchBar3 = QLineEdit()
+        self.headerLayout.addWidget(self.homeButton)
+        self.headerLayout.addWidget(self.searchBar3)
+        self.headerLayout.setAlignment(Qt.AlignmentFlag.AlignTop)
+
+        # Remove margins and spacing from header layout
+        self.headerLayout.setContentsMargins(0, 0, 0, 0)  # No margins
+        self.headerLayout.setSpacing(0)  # No spacing
+
+        self.homeButton.setProperty("class", "homeButton")
+        self.homeButton.setMaximumWidth(350)
+        self.homeButton.setMinimumHeight(80)
+        self.homeButton.clicked.connect(self.switch_to_another_widget)
+
+        # Body
+        self.locationHead = QGroupBox()
+        self.locationHead.setMaximumHeight(60)
+        self.locationHeadLayout = QHBoxLayout(self.locationHead)  # Use QHBoxLayout for left and right alignment
+        self.locationMainLayout.addWidget(self.locationHead)
+
+        # Remove margins and spacing from location head layout
+        self.locationHeadLayout.setContentsMargins(0, 0, 0, 0)
+        self.locationHeadLayout.setSpacing(0)
+
+        # Search Bar3
+        self.searchBar3.setStyleSheet("QLineEdit { padding-left: 15px; padding-right: 10px; padding-top: 5px; padding-bottom: 5px; }")
+        self.searchBar3.setPlaceholderText("Where's Your Next Spot?")
+
+        # Widget Container
+        # Group box
+        group_box = QGroupBox("")
+        group_layout = QVBoxLayout(group_box)
+
+        # Combine content1 and content2 into a single scrollable frame
+        combined_frame = QFrame()
+        self.combined_layout = QVBoxLayout(combined_frame)
+        combined_frame.setStyleSheet("background-color: transparent")
+
+        combined_frame.setContentsMargins(0, 0, 0, 0)
+
+        self.combined_layout.setContentsMargins(0, 0, 0, 0)
+        self.combined_layout.setSpacing(0)
+
+        # Create a single scroll area for the combined frame
+        scroll_area = QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setWidget(combined_frame)
+        scroll_area.setStyleSheet("QScrollArea {background: transparent; border: none;}")
+
+        scroll_area.setContentsMargins(0, 0, 0, 0)
+
+        # Add the scroll area to the group box layout
+        self.titleLabel = QLabel("Liked Locations")
+        self.titleLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.titleLabel.setProperty("class","header1")
+        group_layout.addWidget(self.titleLabel)
+        group_layout.addWidget(scroll_area)
+
+        # Add group box to main layout
+        self.locationMainLayout.addWidget(group_box)
+
+    def switch_to_another_widget(self):
+        global likeLocation
+        likeLocation = False
+        self.mainWindow.stacked_widget.setCurrentWidget(self.mainWindow.centralWidget)
+
+    def populateLocations(self):
+        clear_layout(self.combined_layout)
+        with open("heartDB.json", "r") as file:
+            content = json.load(file)
+            for location in content:
+                if currentUser in location["likers"]:
+                    newLocationWidget = LocationWidget(mainObj=self.mainWindow, type="button")
+                    newLocationWidget.nameLabel.setText(location["address"])
+                    newLocationWidget.restOfAddLabel.setText("")
+                    self.combined_layout.addWidget(newLocationWidget)
+                    newLocationWidget.setMaximumHeight(150)
+                    newLocationWidget.setMaximumWidth(100000)
+                    newLocationWidget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+                    newLocationWidget.setContentsMargins(0, 0, 0, 0)
+                    
+
+    def keyPressEvent(self, event):
+        """Handle key press events."""
+        if event.key() == Qt.Key.Key_Return:  # Check if the Enter key was pressed
+            from main import getLocation
+            if len(self.searchBar3.text()) > 0:
+                self.mainWindow.searchBar2.setText(self.searchBar3.text())
+                self.mainWindow.update_location_page()
+                self.mainWindow.searchBar2.setText("")
+                self.switch_to_another_widget(self.locationWidget)
+  
 class ComparisonWidget(QWidget):
     def __init__(self, homeWidget, locationWidget, mainWindow):
         super().__init__()
@@ -423,20 +560,11 @@ class ComparisonWidget(QWidget):
     def switch_to_home(self):
         self.switch_to_another_widget(self.homeWidget)
 
-    def switch_to_another_widget(self, target_widget):
-        # Start with the current widget
-        parent = self.parentWidget()
-
-        # Traverse up the widget hierarchy to find the QStackedWidget
-        while parent is not None:
-            if isinstance(parent, QStackedWidget):
-                # Found the QStackedWidget, switch to the target widget
-                parent.setCurrentWidget(target_widget)
-                return
-            parent = parent.parentWidget()
-
-        # If no QStackedWidget is found, print an error or handle it
-        print("QStackedWidget not found in parent hierarchy.")
+    def switch_to_another_widget(self):
+        global likeLocation
+        likeLocation = False
+        self.mainWindow.stacked_widget.setCurrentWidget(self.mainWindow.centralWidget)
+        
 
     def keyPressEvent(self, event):
         """Handle key press events."""
@@ -489,6 +617,11 @@ class MainWindow(QMainWindow):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        with open("user.id", "r") as file:
+            global currentUser
+            currentUser = file.read()
+            file.close()
 
         # Window setup
         self.setWindowTitle("Spot Finder")
@@ -599,7 +732,6 @@ class MainWindow(QMainWindow):
         self.locationHeadLayout = QVBoxLayout(self.locationHead)
         self.locationMainLayout.addWidget(self.locationHead)
         
-        
 
         # Remove margins and spacing from location head layout
         self.locationHeadLayout.setContentsMargins(0, 0, 0, 0)
@@ -670,7 +802,8 @@ class MainWindow(QMainWindow):
         # Heart Button
         self.heartButton = QPushButton()
         self.heartButton.setProperty("id","heart")
-        self.widgetContainerLayout.addChildWidget(self.heartButton) #Determines button state
+        self.widgetContainerLayout.addChildWidget(self.heartButton) 
+        #Determines button state
         global likeLocation 
         if likeLocation:
             self.heartButton.setIcon(QIcon("classes/ui/imgs/heart.png"))
@@ -700,11 +833,13 @@ class MainWindow(QMainWindow):
         self.stacked_widget.setGraphicsEffect(self.blur_effect)
 
         self.comparePage = ComparisonWidget(self.centralWidget, self.locationPage, self)
-        
+        self.likesWidget = LikesWidget(self.centralWidget, self.locationPage, self)
+
         # Add pages to stacked widget
         self.stacked_widget.addWidget(self.centralWidget)  # First page
         self.stacked_widget.addWidget(self.locationPage)  # Second page
         self.stacked_widget.addWidget(self.comparePage)
+        self.stacked_widget.addWidget(self.likesWidget)
 
 
         # Default page to show
@@ -717,18 +852,31 @@ class MainWindow(QMainWindow):
             with open("cachedLocations.json", "r") as file:
                 clear_layout(self.bottomLayout)
                 loadedFile = json.load(file)
-
+                
                 for location in loadedFile:
                     locationObject = loadObjectFromJson(location)
                     newLocoWidget = LocationWidget()
+                    
                     self.bottomLayout.addWidget(newLocoWidget)
                     newLocoWidget.updateLocationLabels(locationObject)
                     newLocoWidget.locationClickedSignal.connect(self.handleLocationClicked)
                 file.close()
 
+            likedLocationsButton = LocationWidget()
+            self.bottomLayout.addWidget(likedLocationsButton)
+             
+            likedLocationsButton.updateLocationLabels(currentLocation, True)
+
+            likedLocationsButton.nameLabel.clicked.connect(self.switch_to_likes_page)
+
         except FileNotFoundError: #This occurs if the user has not searched yet
             pass
-        
+    
+    def switch_to_likes_page(self):
+        '''Switched the stacked widget to the liked page'''
+        self.stacked_widget.setCurrentWidget(self.likesWidget)
+        self.likesWidget.populateLocations()
+
     def handleLocationClicked(self, location_name):
         # Access switch_to_second_page here
 
@@ -745,14 +893,34 @@ class MainWindow(QMainWindow):
 
     def heartButtonClicked(self):
         global likeLocation
-        if likeLocation:
-            self.heartButton.setIcon(QIcon("classes/ui/imgs/heart.png"))
-            likeLocation = False
-        else:
-            self.heartButton.setIcon(QIcon("classes/ui/imgs/heartEmpty.png"))
-            likeLocation = True
 
-        
+        with open("heartDB.json", "r") as file:
+            contents = json.load(file)
+
+            matched = False
+
+            for item1 in contents:
+                if currentLocation.getAddress() == item1["address"]:
+                    matched = True
+
+            if not matched:
+                contents.append({"address" : currentLocation.getAddress(), "likers" : []})
+
+            for item in contents:
+                if item["address"] == currentLocation.getAddress():
+                    if currentUser in item["likers"]:
+                        item["likers"].pop(item["likers"].index(currentUser))
+                        self.heartButton.setIcon(QIcon("classes/ui/imgs/heartEmpty.png"))
+                        likeLocation = False
+                    else:
+                        item["likers"].append(currentUser)
+                        self.heartButton.setIcon(QIcon("classes/ui/imgs/heart.png"))
+                        likeLocation = True
+
+            file.close()
+        with open("heartDB.json", "w") as file:
+            json.dump(contents, file)
+            file.close()
 
     def keyPressEvent(self, event):
         """Handle key press events."""
@@ -777,6 +945,19 @@ class MainWindow(QMainWindow):
         self.povertyWidget.updateLabels(currentLocation)
         self.descWidget.updateLabel(currentLocation)
         self.crimeWidget.updateCrime(currentLocation)
+
+        with open("heartDB.json", "r") as file:
+            contents = json.load(file)
+            likeLocation = False
+            for location in contents:
+                if currentUser in location["likers"]:
+                    likeLocation = True
+
+
+        if likeLocation:
+            self.heartButton.setIcon(QIcon("classes/ui/imgs/heart.png"))
+        else:
+            self.heartButton.setIcon(QIcon("classes/ui/imgs/heartEmpty.png"))
 
         currentLocation.save_to_db()
         currentLocation.save_weather_data()
@@ -818,6 +999,12 @@ class MainWindow(QMainWindow):
                 self.povertyWidget.setVisible(True)
                 self.descWidget.setVisible(True)
                 self.crimeWidget.setVisible(True)
+
+                if likeLocation:
+                    self.heartButton.setIcon(QIcon("classes/ui/imgs/heart.png"))
+                else:
+                    self.heartButton.setIcon(QIcon("classes/ui/imgs/heartEmpty.png"))
+
         elif mode == "compare": #If the app is in compare mode do this logic
             if currentLocation is not None:
                 self.comparePage.updateLabels(location)
@@ -837,6 +1024,8 @@ class MainWindow(QMainWindow):
         self.searchBar2.setText("")
         self.createLocationWidgets()
         self.titleLabel.setText("Spot Finder")
+        global likeLocation
+        likeLocation = False
         
 
 def clear_layout(layout):

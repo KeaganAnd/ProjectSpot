@@ -30,6 +30,9 @@ from classes.database import init_db
 '''Debug Imports'''
 from functions.logHandler import writeLog
 
+'''UUID'''
+import uuid
+
 
 load_dotenv("keys.env") #Loads keys from keys.env | Keys can be accessed with os.genenv("KEYNAME")
 
@@ -112,6 +115,14 @@ if __name__ == "__main__":
     '''Main Loop Handles The UI Setup'''
 
     writeLog("Program Started")
+
+    #Generates user id if it doesn't already exists simply links to hearts
+    with open("user.id", "r+") as file:
+        contents = file.read()
+        if len(contents) == 0:
+            file.write(str(uuid.uuid4()))
+        file.close()
+
     init_db()  # Initialize database when app starts
     app = QApplication(sys.argv)
     app.setStyleSheet(returnStyleSheet())
