@@ -117,6 +117,9 @@ if __name__ == "__main__":
     writeLog("Program Started")
 
     #Generates user id if it doesn't already exists simply links to hearts
+    with open("user.id", "w") as file:
+        file.close()
+
     with open("user.id", "r+") as file:
         contents = file.read()
         if len(contents) == 0:
