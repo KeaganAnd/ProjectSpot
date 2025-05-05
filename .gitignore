@@ -3,3 +3,4 @@ cachedLocations.json
 __pycache__
 *.pyc
 *.pyo
+user.id
