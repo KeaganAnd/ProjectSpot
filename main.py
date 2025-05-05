@@ -27,6 +27,9 @@ from classes.ui.mainwindow import MainWindow
 '''DB Components'''
 from classes.database import init_db
 
+'''Debug Imports'''
+from functions.logHandler import writeLog
+
 '''UUID'''
 import uuid
 
@@ -42,7 +45,7 @@ def getLocation(location: str) -> Location:
     Documents: https://developers.google.com/maps/documentation/geocoding/requests-geocoding#json'''
 
 
-    print("Loading...")
+    writeLog(f"Finding Location {location}...")
 
     #Creates location object
     address = location
@@ -73,11 +76,13 @@ def getLocation(location: str) -> Location:
                 elif addressComponent["types"][0] == "administrative_area_level_1":
                     state = addressComponent["long_name"]
             
+            writeLog(f"Found Location {location}")
             return(Location(address=results["formatted_address"],coordinates=results["geometry"]["location"],country=country, state=state))
         else:
+            writeLog(f"Failed To Find Location {location}")
             return(Location(address="N/A"))
     else:
-        print("API is not responding")
+        writeLog(f"Google Maps API Not Responding")
         return Location(address="N/A")
 
 def getWeather(location: Location): 
@@ -86,6 +91,7 @@ def getWeather(location: Location):
 
     Uses open-meto for weather: https://open-meteo.com/en/docs'''
 
+    writeLog(f"Getting Weather For {location.getAddress()}")
 
     coordinates = location.getCoordinates()
     response = requests.get(f"https://api.open-meteo.com/v1/forecast?latitude={coordinates[0]}&longitude={coordinates[1]}&hourly=precipitation&current=temperature_2m&timezone=auto&wind_speed_unit=mph&temperature_unit=fahrenheit&precipitation_unit=inch")
@@ -102,9 +108,13 @@ def getWeather(location: Location):
     if hasattr(location, 'save_weather_data'):
         location.save_weather_data()
 
+    writeLog(f"Got Weather For {location.getAddress()}")
+
 
 if __name__ == "__main__":
     '''Main Loop Handles The UI Setup'''
+
+    writeLog("Program Started")
 
     #Generates user id if it doesn't already exists simply links to hearts
     with open("user.id", "r+") as file:
@@ -128,5 +138,5 @@ for item in os.listdir("functions/generatedImages"):
     if item.endswith(".png") or item.endswith(".jpg"):
         os.remove(f"functions/generatedImages/{item}")
 
-print("End of program")
+writeLog(f"Program Terminated Successfully.")
 

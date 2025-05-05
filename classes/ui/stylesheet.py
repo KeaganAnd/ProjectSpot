@@ -1,3 +1,6 @@
+'''PyQt6 takes in a stylesheet very similar to css however, it can't take in
+actual css documents. It needs a string.'''
+
 def returnStyleSheet():
     return("""
 [class="header1"] {

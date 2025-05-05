@@ -195,7 +195,7 @@ class MapWidget(QGroupBox):
 
         weatherPixmap = QPixmap(mapLocation)
         self.mapImageLabel.setPixmap(weatherPixmap)
-        print("Updated")
+        print("Map Updated")
 
 class PovertyWidget(QGroupBox):
     def __init__(self):
@@ -278,7 +278,7 @@ class DescriptionWidget(QGroupBox):
                 data = json.load(file)
                 self.descLabel.setText(data[location.getState()])
             
-            print("Updated")
+            print("Description Label Updated")
 
 class CrimeWidget(QGroupBox):
     def __init__(self):
@@ -460,7 +460,7 @@ class ComparisonWidget(QWidget):
         self.homeButton.setProperty("class", "homeButton")
         self.homeButton.setMaximumWidth(350)
         self.homeButton.setMinimumHeight(80)
-        self.homeButton.clicked.connect(self.switch_to_another_widget)
+        self.homeButton.clicked.connect(self.switch_to_home)
 
         # Body
         self.locationHead = QGroupBox()
@@ -556,6 +556,9 @@ class ComparisonWidget(QWidget):
 
         # Add group box to main layout
         self.locationMainLayout.addWidget(group_box)
+
+    def switch_to_home(self):
+        self.switch_to_another_widget(self.homeWidget)
 
     def switch_to_another_widget(self):
         global likeLocation
@@ -956,6 +959,9 @@ class MainWindow(QMainWindow):
         else:
             self.heartButton.setIcon(QIcon("classes/ui/imgs/heartEmpty.png"))
 
+        currentLocation.save_to_db()
+        currentLocation.save_weather_data()
+
     def switch_to_second_page(self):
         """Switch to the second page in the stacked widget."""
         from main import getLocation,getWeather
@@ -1009,6 +1015,9 @@ class MainWindow(QMainWindow):
         self.searchBar.setText("")
         self.blur_effect.setBlurRadius(0)
         QCoreApplication.processEvents()
+
+        currentLocation.save_to_db()
+        currentLocation.save_weather_data()
 
     def switch_to_home_page(self):
         self.stacked_widget.setCurrentWidget(self.centralWidget)

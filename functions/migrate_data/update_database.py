@@ -1,3 +1,5 @@
+from classes.database import get_db_connection
+
 def get_search_history(limit=10):
     """Get formatted search history for UI"""
     with get_db_connection() as conn:
