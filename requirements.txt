@@ -1,3 +1,4 @@
 requests
 dotenv
 PyQt6
+google-genai

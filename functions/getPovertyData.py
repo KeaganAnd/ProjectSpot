@@ -45,13 +45,15 @@ def getPovertyData(location: Location) -> list:
             }
             
             
-
-            request = requests.get(f"https://api.census.gov/data/timeseries/poverty/saipe?get=NAME,SAEMHI_PT,SAEPOVALL_PT&for=state:{stateID}&YEAR=2023&key={os.getenv("USCensus")}", headers=headers, timeout=2)
-            if request.status_code == 200:
-                writeLog("Done Loading Poverty Data")
-                return(request.json())
-            else:
-                writeLog("Error Loading Poverty Data | Cannot Connect To API")
+            try:
+                request = requests.get(f"https://api.census.gov/data/timeseries/poverty/saipe?get=NAME,SAEMHI_PT,SAEPOVALL_PT&for=state:{stateID}&YEAR=2023&key={os.getenv("USCensus")}", headers=headers, timeout=15)
+                if request.status_code == 200:
+                    writeLog("Done Loading Poverty Data")
+                    return(request.json())
+                else:
+                    writeLog("Error Loading Poverty Data | Cannot Connect To API")
+                    return([])
+            except requests.exceptions.Timeout:
+                writeLog("Poverty Data Timed Out")
                 return([])
-        
 
