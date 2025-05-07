@@ -1,6 +1,10 @@
 import datetime
 import os
 
+if not os.path.exists("logs"):
+    os.makedirs("logs")
+import os
+
 maxLogs = 10
 
 logsInDir = os.listdir("logs")
