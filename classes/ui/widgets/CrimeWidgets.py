@@ -12,7 +12,16 @@ class CrimeWidget(QGroupBox):
         # Main vertical layout
         main_layout = QVBoxLayout(self)
 
-        # Image label for weather icon
+        #Crime Icon
+        crimeIconLabel = QLabel()
+        crimeIcon = QPixmap("classes/ui/imgs/crime.png")
+
+        crimeIconLabel.setPixmap(crimeIcon.scaled(100,100))
+        crimeIconLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        main_layout.addWidget(crimeIconLabel)
+
+        # Label for violent crimes
         self.violentCrimesLabel = QLabel(self)
         self.violentCrimesLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.violentCrimesLabel.setWordWrap(True)

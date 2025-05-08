@@ -13,6 +13,14 @@ class PovertyWidget(QGroupBox):
         # Main vertical layout
         main_layout = QVBoxLayout(self)
 
+        #Crime Icon
+        moneyIconLabel = QLabel()
+        moneyIcon = QPixmap("classes/ui/imgs/salary.png")
+
+        moneyIconLabel.setPixmap(moneyIcon.scaled(100,100))
+        moneyIconLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        main_layout.addWidget(moneyIconLabel)
 
         # Image label for weather icon
         self.medianIncomeLabel = QLabel("Median Income:",self)

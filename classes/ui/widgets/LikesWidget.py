@@ -4,6 +4,15 @@ from PyQt6.QtCore import *
 import json
 
 
+'''
+Oval Shaped Boxes
+Centered Vertically
+Green Location Font
+Smaller Font
+
+
+'''
+
 from .LocationWidget import LocationWidget
 
 class LikesWidget(QWidget):

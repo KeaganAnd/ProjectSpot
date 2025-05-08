@@ -19,7 +19,8 @@ from .widgets.DescriptionWidget import DescriptionWidget                        
 from .widgets.ComparisonWidget import ComparisonWidget                                 # Import the ComparisonWidget class
 from .widgets.LikesWidget import LikesWidget                                           # Import the LikesWidget class
 from .widgets.LocationWidget import LocationWidget                                     # Import the LocationWidget class
-
+from .widgets.loginUI import LoginUI
+from .widgets.registerUI import registerUI
 
 class MainWindow(QMainWindow):                                                          # Define the main application window class, inheriting from QMainWindow
 
@@ -41,7 +42,7 @@ class MainWindow(QMainWindow):                                                  
 
         # Central Widget and Main Layout
         self.centralWidget = QWidget()                                                  # Create a central widget to hold other widgets
-        mainLayout = QVBoxLayout(self.centralWidget)                                   # Create a vertical layout for the central widget
+        self.mainLayout = QVBoxLayout(self.centralWidget)                                   # Create a vertical layout for the central widget
 
         # Stacked Widget to switch between pages
         self.stacked_widget = QStackedWidget(self.centralWidget)                       # Create a stacked widget to manage different pages
@@ -63,7 +64,7 @@ class MainWindow(QMainWindow):                                                  
         # Set margins for group boxes and main layout
         self.topGroupBox.setContentsMargins(0, 0, 0, 0)                                 # Remove margins around the top group box
         self.bottomGroupBox.setContentsMargins(0, 0, 0, 0)                              # Remove margins around the bottom group box
-        mainLayout.setContentsMargins(0, 0, 0, 0)                                      # Remove margins around the main layout
+        self.mainLayout.setContentsMargins(0, 0, 0, 0)                                      # Remove margins around the main layout
 
         # Create widgets
         self.titleLabel = QLabel("Spot Finder")                                         # Create a label for the title
@@ -93,13 +94,13 @@ class MainWindow(QMainWindow):                                                  
             "QLineEdit { padding-left: 15px; padding-right: 10px; padding-top: 5px; padding-bottom: 5px; }")
 
         # Add GroupBoxes to the main layout
-        mainLayout.addWidget(self.topGroupBox)                                         # Add the top group box to the main layout
-        mainLayout.addWidget(self.bottomGroupBox)                                      # Add the bottom group box to the main layout
-        mainLayout.setSpacing(0)                                                      # Remove spacing between widgets in the main layout
+        self.mainLayout.addWidget(self.topGroupBox)                                         # Add the top group box to the main layout
+        self.mainLayout.addWidget(self.bottomGroupBox)                                      # Add the bottom group box to the main layout
+        self.mainLayout.setSpacing(0)                                                      # Remove spacing between widgets in the main layout
 
         # Set layout stretch factors
-        mainLayout.setStretch(0, 3)                                                    # Set the stretch factor for the top part of the main layout
-        mainLayout.setStretch(1, 1)                                                    # Set the stretch factor for the bottom part of the main layout
+        self.mainLayout.setStretch(0, 3)                                                    # Set the stretch factor for the top part of the main layout
+        self.mainLayout.setStretch(1, 1)                                                    # Set the stretch factor for the bottom part of the main layout
 
         #!Location Page
         self.locationPage = QWidget()                                                   # Create a widget for the location page
@@ -247,11 +248,43 @@ class MainWindow(QMainWindow):                                                  
         self.stacked_widget.addWidget(self.comparePage)                                # Add the comparison page to the stacked widget
         self.stacked_widget.addWidget(self.likesWidget)                                # Add the likes page to the stacked widget
 
+        #Profile Button
+        self.profileButton = QPushButton()
+        profileImg = QPixmap("classes/ui/imgs/user.png")
+        icon = QIcon(profileImg)
+        self.profileButton.setIcon(icon)
+        self.profileButton.setIconSize(QSize(75,75))
+        self.profileButton.setStyleSheet("QPushButton {border-radius: 37px; background-color: #8FBC8F;} QPushButton:hover {background-color:#A2D1A2}")
+        self.profileButton.clicked.connect(self.showLogin)
+        self.mainLayout.addChildWidget(self.profileButton)
+        self.profileButton.setGeometry(10,10,75,75)
+
+
+        #Login/Registration Widget
+
+        self.login_register_stacked = QStackedWidget()
+        self.login_register_stacked.resize(500, 600)
+
+        #Login
+        
+        self.loginUi = LoginUI(self.login_register_stacked)
+        self.registerUi = registerUI(self.login_register_stacked)
+
+        self.loginUi.registerElement = self.registerUi #Give elements the other object so they can switch between eachother
+        self.registerUi.loginElement = self.loginUi
+
+        self.login_register_stacked.addWidget(self.loginUi)
+        self.login_register_stacked.addWidget(self.registerUi)
+
+        
 
         # Default page to show
         self.stacked_widget.setCurrentWidget(self.centralWidget)                       # Set the home screen as the default page
 
     
+    def showLogin(self):
+        self.login_register_stacked.show()
+        self.login_register_stacked.setCurrentWidget(self.loginUi)
 
     def createLocationWidgets(self):
         try: #Opens json file, parses it, and generates the form for the user to select a location

@@ -126,8 +126,33 @@ class ComparisonWidget(QWidget):
             value.setMaximumSize(300, 300)
             content2_layout.addWidget(value)
 
-        # Add content1 and content2 to the combined layout
+
+
+        # Third content (content3)
+        content3 = QFrame()
+        content3_layout = QVBoxLayout(content3)
+        content3_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        # In Between Widgets
+        self.widgets3 = {
+            "loc1Weather": WeatherWidget(),
+            "loc1Map": MapWidget(),
+            "loc1Poverty": PovertyWidget(),
+            "loc1Crime": CrimeWidget(),
+            "loc1Desc": DescriptionWidget()
+        }
+
+
+
+        # Add widgets to content3
+        for varName, value in self.widgets3.items():
+            value.setMinimumSize(300, 300)
+            value.setMaximumSize(300, 300)
+            content3_layout.addWidget(value)
+
+        # Add content1 and content3 to the combined layout
         combined_layout.addWidget(content1)
+        combined_layout.addWidget(content3)
         combined_layout.addWidget(content2)
 
         # Create a single scroll area for the combined frame
@@ -202,3 +227,18 @@ class ComparisonWidget(QWidget):
                 widget.updateLabel(newLocation)
             elif isinstance(widget, CrimeWidget):
                 widget.updateCrime(newLocation)
+
+        
+        for varName, widget in self.widgets3.items():
+            if isinstance(widget, WeatherWidget):
+                print(f"Test: {self.widgets2["loc1Weather"].tempLabel.text()[:-2]}")
+                difference = int(self.widgets2["loc1Weather"].tempLabel.text()[:-2]) - int(self.widgets["loc1Weather"].tempLabel.text()[:-2])
+                widget.tempLabel.setText(f"{str(abs(difference))}")
+            elif isinstance(widget, MapWidget):
+                pass
+            elif isinstance(widget, PovertyWidget):
+                pass
+            elif isinstance(widget, DescriptionWidget):
+                pass
+            elif isinstance(widget, CrimeWidget):
+                pass
