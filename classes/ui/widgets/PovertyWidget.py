@@ -49,8 +49,14 @@ class PovertyWidget(QGroupBox):
         if location.getCountry() == "United States":
             from functions.getPovertyData import getPovertyData
             data = getPovertyData(location)
-            self.medianIncomeLabel.setText(f"Median Income: ${int(data[1][1]):,}")
-            self.peopleInPovertyLabel.setText(f"People In Poverty: {int(data[1][2]):,}")
+            try:
+                self.medianIncomeLabel.setText(f"Median Income: ${int(data[1][1]):,}")
+            except IndexError:
+                self.medianIncomeLabel.setText(f"Median Income: Unavailable")
+            try:
+                self.peopleInPovertyLabel.setText(f"People In Poverty: {int(data[1][2]):,}")
+            except IndexError:
+                self.peopleInPovertyLabel.setText(f"People In Poverty: Unavailable")
         else:
             self.medianIncomeLabel.setText("Sorry, economic information is only available within the USA.")
             self.peopleInPovertyLabel.setText("")
