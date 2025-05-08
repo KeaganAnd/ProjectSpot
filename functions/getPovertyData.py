@@ -5,55 +5,45 @@ import os
 from dotenv import load_dotenv
 from functions.logHandler import writeLog
 
-requests.packages.urllib3.util.connection.HAS_IPV6 = False
+requests.packages.urllib3.util.connection.HAS_IPV6 = False  # Disable IPv6 for requests
 
 def getPovertyData(location: Location) -> list:
-    '''https://api.census.gov/data/timeseries/poverty/saipe?get=NAME,SAEMHI_PT,SAEPOVALL_PT&for=state:01&YEAR=2023
-    
-    https://www.census.gov/data/developers/data-sets/Poverty-Statistics.html
+    '''Fetches poverty data for a given location using the US Census API.
 
-    Refrence for variable names:
+    API Reference:
+    https://api.census.gov/data/timeseries/poverty/saipe
+    Variable Reference:
     https://api.census.gov/data/timeseries/poverty/saipe/variables.html
     '''
-    load_dotenv("keys.env")
-    if location.getCountry() == "United States":
-        writeLog("Loading Poverty Data")
+    load_dotenv("keys.env")  # Load API keys from the keys.env file
+
+    if location.getCountry() == "United States":  # Ensure the location is in the US
+        writeLog("Loading Poverty Data")  # Log the start of the data loading process
         
+        # Load the dictionary of state FIPS codes
         with open("functions/functionData/stateFips.json", "r") as file:
-            fipsDict = json.load(file) #Loads the dictionary of state codes needed for API
+            fipsDict = json.load(file)
 
             try:
-                stateID = fipsDict[location.getState()]
+                stateID = fipsDict[location.getState()]  # Get the FIPS code for the state
             except KeyError:
-                writeLog("Failed Getting Poverty Data: Location Object Missing A State")
-                return(["Error"])
-                
+                writeLog("Failed Getting Poverty Data: Location Object Missing A State")  # Log missing state error
+                return ["Error"]  # Return error if state is missing
 
-            headers = {
-                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-                "Accept-Encoding": "gzip, deflate, br, zstd",
-                "Accept-Language": "en-US,en;q=0.5",
-                "Connection": "keep-alive",
-                "Host": "api.census.gov",
-                "Priority": "u=0, i",
-                "Sec-Fetch-Dest": "document",
-                "Sec-Fetch-Mode": "navigate",
-                "Sec-Fetch-Site": "none",
-                "Sec-Fetch-User": "?1",
-                "Upgrade-Insecure-Requests": "1",
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:137.0) Gecko/20100101 Firefox/137.0"
-            }
-            
-            
+
+
             try:
-                request = requests.get(f"https://api.census.gov/data/timeseries/poverty/saipe?get=NAME,SAEMHI_PT,SAEPOVALL_PT&for=state:{stateID}&YEAR=2023&key={os.getenv("USCensus")}", headers=headers, timeout=15)
-                if request.status_code == 200:
-                    writeLog("Done Loading Poverty Data")
-                    return(request.json())
+                # Send a GET request to the US Census API
+                request = requests.get(
+                    f"https://api.census.gov/data/timeseries/poverty/saipe?get=NAME,SAEMHI_PT,SAEPOVALL_PT&for=state:{stateID}&YEAR=2023&key={os.getenv('USCensus')}",
+                    timeout=15
+                )
+                if request.status_code == 200:  # Check if the request was successful
+                    writeLog("Done Loading Poverty Data")  # Log success
+                    return request.json()  # Return the JSON response
                 else:
-                    writeLog("Error Loading Poverty Data | Cannot Connect To API")
-                    return([])
+                    writeLog("Error Loading Poverty Data | Cannot Connect To API")  # Log API connection error
+                    return []  # Return an empty list on failure
             except requests.exceptions.Timeout:
-                writeLog("Poverty Data Timed Out")
-                return([])
-
+                writeLog("Poverty Data Timed Out")  # Log timeout error
+                return []  # Return an empty list on timeout

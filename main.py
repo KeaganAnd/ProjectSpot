@@ -1,6 +1,6 @@
 '''
 Spot Finder!
-Beta
+Final Release 1.0
 
 4/15/2025
 
@@ -34,7 +34,7 @@ from functions.logHandler import writeLog
 import uuid
 
 
-load_dotenv("keys.env") #Loads keys from keys.env | Keys can be accessed with os.genenv("KEYNAME")
+load_dotenv("keys.env") #Loads keys from keys.env | Keys can be accessed with os.getenv("KEYNAME")
 
 
 
