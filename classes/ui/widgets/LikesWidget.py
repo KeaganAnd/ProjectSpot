@@ -73,6 +73,8 @@ class LikesWidget(QWidget):
         group_box = QGroupBox("")
         group_layout = QVBoxLayout(group_box)
 
+        
+
         # Combine content1 and content2 into a single scrollable frame
         combined_frame = QFrame()
         self.combined_layout = QVBoxLayout(combined_frame)
@@ -88,6 +90,8 @@ class LikesWidget(QWidget):
         scroll_area.setWidgetResizable(True)
         scroll_area.setWidget(combined_frame)
         scroll_area.setStyleSheet("QScrollArea {background: transparent; border: none;}")
+
+       
 
         scroll_area.setContentsMargins(0, 0, 0, 0)
 
@@ -114,11 +118,25 @@ class LikesWidget(QWidget):
             for location in content:
                 if self.currentUser in location["likers"]:
                     newLocationWidget = LocationWidget(mainObj=self.mainWindow, type="button")
+                    newLocationWidget.restOfAddLabel.hide()
+                    newLocationWidget.setStyleSheet('''
+                    QGroupBox {
+                        border-radius: 70px;
+                        padding: 2px;                                  
+                    }''')
+
+                    newLocationWidget.nameLabel.setStyleSheet('''
+                    QPushButton {
+                        color: #A5D6A7;                            
+                    }
+                    QPushButton:hover {
+                        color: white;
+                    }''')
                     newLocationWidget.nameLabel.setText(location["address"])
                     newLocationWidget.restOfAddLabel.setText("")
-                    self.combined_layout.addWidget(newLocationWidget)
+                    self.combined_layout.addWidget(newLocationWidget, alignment=Qt.AlignmentFlag.AlignHCenter)
                     newLocationWidget.setMaximumHeight(150)
-                    newLocationWidget.setMaximumWidth(100000)
+                    newLocationWidget.setFixedWidth(600)
                     newLocationWidget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
                     newLocationWidget.setContentsMargins(0, 0, 0, 0)
                     
