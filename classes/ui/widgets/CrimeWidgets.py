@@ -13,13 +13,13 @@ class CrimeWidget(QGroupBox):
         main_layout = QVBoxLayout(self)
 
         #Crime Icon
-        crimeIconLabel = QLabel()
+        self.crimeIconLabel = QLabel()
         crimeIcon = QPixmap("classes/ui/imgs/crime.png")
 
-        crimeIconLabel.setPixmap(crimeIcon.scaled(100,100))
-        crimeIconLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.crimeIconLabel.setPixmap(crimeIcon.scaled(100,100))
+        self.crimeIconLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        main_layout.addWidget(crimeIconLabel)
+        main_layout.addWidget(self.crimeIconLabel)
 
         # Label for violent crimes
         self.violentCrimesLabel = QLabel(self)
@@ -40,7 +40,7 @@ class CrimeWidget(QGroupBox):
         self.setStyleSheet("[class=\"locationInfoWidget\"] {padding: 5px 5px 5px 5px;} ")
 
     def updateCrime(self, location):
-        if location.getCountry() == "USA":
+        if location.getCountry() == "USA" or location.getCountry() == "United States":
             from functions.getCrimeData import getCrimeData
             self.violentCrimesLabel.setText(f"Violent Crimes In 2023: {getCrimeData(location)}")
         else:

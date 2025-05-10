@@ -8,6 +8,7 @@ from .MapWidget import MapWidget
 from .CrimeWidgets import CrimeWidget
 from .DescriptionWidget import DescriptionWidget
 
+import re #Oh yeah... We're using regex
 class ComparisonWidget(QWidget):
     def __init__(self, homeWidget, locationWidget, mainWindow):
         super().__init__()
@@ -228,17 +229,99 @@ class ComparisonWidget(QWidget):
             elif isinstance(widget, CrimeWidget):
                 widget.updateCrime(newLocation)
 
-        
-        for varName, widget in self.widgets3.items():
-            if isinstance(widget, WeatherWidget):
-                print(f"Test: {self.widgets2["loc1Weather"].tempLabel.text()[:-2]}")
-                difference = int(self.widgets2["loc1Weather"].tempLabel.text()[:-2]) - int(self.widgets["loc1Weather"].tempLabel.text()[:-2])
-                widget.tempLabel.setText(f"{str(abs(difference))}")
+        leftLocationName = re.search(r"\w*", self.leftLocationName.text()).group()    #Gets the text from the location label in variables
+        rightLocationName = re.search(r"\w*", self.rightLocationName.text()).group()
+
+        for varName, widget in self.widgets3.items(): # Populate the middle collumn of elements with the differences
+            if isinstance(widget, WeatherWidget): #Weather widgets
+                
+                rightLocationTemp = int(self.widgets2["loc1Weather"].tempLabel.text()[:-2]) #Gets the temp from the left text
+                leftLocationTemp = int(self.widgets["loc1Weather"].tempLabel.text()[:-2]) #Gets the temp from the right text
+
+                difference = abs(leftLocationTemp - rightLocationTemp) # Gets the difference from the temps
+                widget.tempLabel.setWordWrap(True)
+                widget.weatherImageLabel.hide()
+                widget.precipLabel.hide()
+
+                
+
+                if leftLocationTemp > rightLocationTemp: #If the left location is warmer than the other
+                    if "," in leftLocationName:
+                        widget.tempLabel.setText(f"{leftLocationName[:leftLocationName.index(",")]} is warmer by {str(difference)}°")
+                    else:
+                        widget.tempLabel.setText(f"{leftLocationName} is warmer by {str(difference)}°")
+                elif leftLocationTemp < rightLocationTemp: #If the right location is warmer than the other
+                    if "," in rightLocationName:
+                        widget.tempLabel.setText(f"{rightLocationName[:rightLocationName.index(",")]} is warmer by {str(difference)}°") #Cleans up address to make it shorter
+                    else: 
+                        widget.tempLabel.setText(f"{rightLocationName} is warmer by {str(difference)}°")
+                else: #If the locations are the same temp or otherwise
+                    widget.tempLabel.setText(f"There is no difference") 
             elif isinstance(widget, MapWidget):
-                pass
+                
+                widget.setStyleSheet('''QGroupBox {
+                                     background-image: url(none); 
+                                     border: 2px solid transparent;
+                                     background-color: transparent;}''')
             elif isinstance(widget, PovertyWidget):
-                pass
+                widget.moneyIconLabel.hide()
+
+                leftLocMedian = self.widgets["loc1Poverty"].medianIncomeLabel.text()
+                leftLocPoverty = self.widgets["loc1Poverty"].peopleInPovertyLabel.text()
+
+                rightLocMedian = self.widgets2["loc1Poverty"].medianIncomeLabel.text()
+                rightLocPoverty = self.widgets2["loc1Poverty"].peopleInPovertyLabel.text()
+
+                digitsInLeft = re.search(r"\d", leftLocMedian)
+                digitsInRight = re.search(r"\d", rightLocMedian) #Regex search for digits
+
+
+                if digitsInLeft and digitsInRight: # Checks to make sure one of the locations isnt outside the US by making sure theres a number in the text
+                    leftMedianIncome = int(re.search(r"(\d.*)+", leftLocMedian).group().replace(",","")) #Regex search to grab whole number
+                    rightMedianIncome = int(re.search(r"(\d.*)+", rightLocMedian).group().replace(",","")) #Regex search to grab whole number
+
+                    
+                    leftPeopleInPoverty = int(re.search(r"(\d.*)+", leftLocPoverty).group().replace(",","")) #Regex search to grab whole number
+                    rightPeopleInPoverty = int(re.search(r"(\d.*)+", rightLocPoverty).group().replace(",","")) #Regex search to grab whole number
+
+
+                    #Logic for median income
+                    if leftMedianIncome > rightMedianIncome:
+                        widget.medianIncomeLabel.setText(f"{leftLocationName}'s median income is higher by ${(abs(leftMedianIncome-rightMedianIncome)):,}")
+                    elif leftMedianIncome < rightMedianIncome:
+                        widget.medianIncomeLabel.setText(f"{rightLocationName}'s median income is higher by ${(abs(leftMedianIncome-rightMedianIncome)):,}")
+                    else:
+                        widget.medianIncomeLabel.setText(f"There is no difference in median income")
+
+                    if leftPeopleInPoverty > rightPeopleInPoverty:
+                        widget.peopleInPovertyLabel.setText(f"{leftLocationName}'s poverty is higher by {(abs(leftPeopleInPoverty-rightPeopleInPoverty)):,} people")
+                    elif leftPeopleInPoverty < rightPeopleInPoverty:
+                        widget.peopleInPovertyLabel.setText(f"{rightLocationName}'s poverty is higher by {(abs(leftPeopleInPoverty-rightPeopleInPoverty)):,} people")
+                    else:
+                        widget.peopleInPovertyLabel.setText(f"There is no difference in poverty")
+                    
+                else:
+                    widget.medianIncomeLabel.setText("There's nothing to compare!")
+                    widget.peopleInPovertyLabel.hide()
             elif isinstance(widget, DescriptionWidget):
-                pass
+                widget.descLabel.setText("")
+                widget.setStyleSheet('''QGroupBox {
+                                     background-image: url(none); 
+                                     border: 2px solid transparent;
+                                     background-color: transparent;}''')
             elif isinstance(widget, CrimeWidget):
-                pass
+                
+                widget.crimeIconLabel.hide()
+
+                if re.search(r"\d", self.widgets["loc1Crime"].violentCrimesLabel.text()) and re.search(r"\d", self.widgets2["loc1Crime"].violentCrimesLabel.text()):
+                    numOfCrimesLeft = int(self.widgets["loc1Crime"].violentCrimesLabel.text()[self.widgets["loc1Crime"].violentCrimesLabel.text().index(":")+2:])
+                    numOfCrimesRight = int(self.widgets2["loc1Crime"].violentCrimesLabel.text()[self.widgets2["loc1Crime"].violentCrimesLabel.text().index(":")+2:])
+                    
+                    if numOfCrimesLeft > numOfCrimesRight:
+                        widget.violentCrimesLabel.setText(f"{leftLocationName} has {abs(numOfCrimesLeft-numOfCrimesRight)} more violent crimes")
+                    elif numOfCrimesLeft < numOfCrimesRight:
+                        widget.violentCrimesLabel.setText(f"{rightLocationName} has {abs(numOfCrimesLeft-numOfCrimesRight)} more violent crimes")
+                    else:
+                        widget.violentCrimesLabel.setText("There is no difference in crime")
+                else:
+                    widget.violentCrimesLabel.setText("There's nothing to compare!")

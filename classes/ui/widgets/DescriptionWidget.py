@@ -7,7 +7,8 @@ from dotenv import load_dotenv
 
 load_dotenv("keys.env")
 
-from google import genai
+from google import genai #Import Google Gemini API
+from functions.logHandler import writeLog
 
 class DescriptionWidget(QGroupBox):
     def __init__(self):
@@ -44,7 +45,7 @@ class DescriptionWidget(QGroupBox):
                 data = json.load(file)
                 self.descLabel.setText(data[location.getState()])
             
-            print("Description Label Updated")
+            writeLog("Description Label Updated")
         elif location.getAddress() != "N/A":
             client = genai.Client(api_key=os.getenv("GEMINI"))
 

@@ -34,10 +34,13 @@ def getPovertyData(location: Location) -> list:
 
             try:
                 # Send a GET request to the US Census API
-                request = requests.get(
-                    f"https://api.census.gov/data/timeseries/poverty/saipe?get=NAME,SAEMHI_PT,SAEPOVALL_PT&for=state:{stateID}&YEAR=2023&key={os.getenv('USCensus')}",
-                    timeout=15
-                )
+                try:
+                    request = requests.get(
+                        f"https://api.census.gov/data/timeseries/poverty/saipe?get=NAME,SAEMHI_PT,SAEPOVALL_PT&for=state:{stateID}&YEAR=2023&key={os.getenv('USCensus')}",
+                        timeout=15
+                    )
+                except requests.exceptions.ReadTimeout:
+                    return []
                 if request.status_code == 200:  # Check if the request was successful
                     writeLog("Done Loading Poverty Data")  # Log success
                     return request.json()  # Return the JSON response

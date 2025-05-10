@@ -2,6 +2,7 @@ from PyQt6.QtGui import *
 from PyQt6.QtWidgets import *
 from PyQt6.QtCore import *
 
+from functions.logHandler import writeLog
 class MapWidget(QGroupBox):
     def __init__(self):
         super().__init__("")
@@ -34,4 +35,4 @@ class MapWidget(QGroupBox):
 
         weatherPixmap = QPixmap(mapLocation)
         self.mapImageLabel.setPixmap(weatherPixmap)
-        print("Map Updated")
+        writeLog("Map Updated")
