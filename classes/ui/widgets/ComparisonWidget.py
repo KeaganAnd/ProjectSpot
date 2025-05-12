@@ -82,13 +82,13 @@ class ComparisonWidget(QWidget):
 
         # Widget Container
         # Group box
-        group_box = QGroupBox("")
-        group_layout = QHBoxLayout(group_box)
+        self.group_box = QGroupBox("")
+        group_layout = QHBoxLayout(self.group_box)
 
         # Combine content1 and content2 into a single scrollable frame
-        combined_frame = QFrame()
-        combined_layout = QHBoxLayout(combined_frame)
-        combined_frame.setStyleSheet("background-color: transparent")
+        self.combined_frame = QFrame()
+        combined_layout = QHBoxLayout(self.combined_frame)
+        self.combined_frame.setStyleSheet("background-color: transparent")
 
         # First content (content1)
         content1 = QFrame()
@@ -159,14 +159,57 @@ class ComparisonWidget(QWidget):
         # Create a single scroll area for the combined frame
         scroll_area = QScrollArea()
         scroll_area.setWidgetResizable(True)
-        scroll_area.setWidget(combined_frame)
+        scroll_area.setWidget(self.combined_frame)
         scroll_area.setStyleSheet("QScrollArea {background: transparent; border: none;}")
 
         # Add the scroll area to the group box layout
         group_layout.addWidget(scroll_area)
 
         # Add group box to main layout
-        self.locationMainLayout.addWidget(group_box)
+        self.locationMainLayout.addWidget(self.group_box)
+
+        self.saveButton = QPushButton(text="Save Comparison")
+        self.saveButton.clicked.connect(self.screen_shot)
+        self.saveButton.setFixedHeight(50)
+        self.saveButton.setStyleSheet(
+            '''QPushButton {color: white; font-size: 15px; background-color: #30343F;} QPushButton:hover {background-color: #4A4F5E}''')
+
+        self.locationMainLayout.addWidget(self.saveButton)
+        
+        
+        
+    def screen_shot(self):
+        dir_path, _ = QFileDialog.getSaveFileName(
+            self,
+            "Save Image As",
+            "report.jpg",  # Default filename
+            "JPEG Files (*.jpg *.jpeg);;All Files (*)"
+        )
+        if dir_path:
+
+            if not dir_path.lower().endswith(('.jpg', '.jpeg')):
+                dir_path += ".jpg"
+
+            print("Selected directory:", dir_path)
+            oldSize = self.size()
+
+            self.header.hide()
+            self.saveButton.hide()
+            self.resize(self.combined_frame.size()) #Resize the widget so whole screen shot can be taken
+
+            # Create a QPixmap with the size of the entire widget
+            pixmap = QPixmap(self.combined_frame.size())  # Use the full size of the widget
+            pixmap.fill(Qt.GlobalColor.transparent)  # Optional: Fill with transparency
+
+            # Render the widget onto the QPixmap
+            self.render(pixmap)
+
+            # Save the pixmap to a file
+            pixmap.save(dir_path, 'jpg')
+
+            self.resize(oldSize) #Restore original size
+            self.header.show()
+            self.saveButton.show()
 
     def switch_to_home(self):
         self.mainWindow.stacked_widget.setCurrentWidget(self.homeWidget)

@@ -410,16 +410,7 @@ class MainWindow(QMainWindow):                                                  
             """, (currentUser, currentLocation.db_id))
             conn.commit()
         
-        '''for item in contents:                                 # Iterate through the contents again
-            if item["address"] == currentLocation.getAddress():  # Find the current location
-                if currentUser in item["likers"]:             # If the user has already liked the location
-                    item["likers"].pop(item["likers"].index(currentUser))  # Remove the user from likers
-                    self.heartButton.setIcon(QIcon("classes/ui/imgs/heartEmpty.png"))  # Set the heart icon to empty
-                    likeLocation = False                      # Set likeLocation to False
-                else:                                         # If the user has not liked the location
-                    item["likers"].append(currentUser)        # Add the user to likers
-                    self.heartButton.setIcon(QIcon("classes/ui/imgs/heart.png"))  # Set the heart icon to filled
-                    likeLocation = True                       # Set likeLocation to True'''
+       
 
 
 
@@ -527,8 +518,7 @@ class MainWindow(QMainWindow):                                                  
             """, (currentUser, location.db_id))
             
             result = cursor.fetchone()
-            print(f"{currentUser, location}")
-            print(result)
+
 
 
 
