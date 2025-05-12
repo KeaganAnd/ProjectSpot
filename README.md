@@ -1,8 +1,6 @@
 # Spot Finder
 Team Spot 2025
 
-Run *main.py*
-
 # Installation Instructions
 
 1. Install [Python](https://www.python.org/downloads/release/python-3133/) (3.13.3 is the version this was created on).
@@ -36,10 +34,17 @@ Run *main.py*
    ``` 
 9.  click `run.bat` which will start the program
     Or alternatively from the command line you can run `python -u main.py`
+10. (*Optional*) Creating a desktop shortcut
+    1.  Right click where you want the shortcut to be (like your desktop).
+    2.  Hover over new.
+    3.  At the top of the "new" window click shortcut.
+    4.  Navigate to where you downloaded the folder and click run.bat.
+    5.  Name the shortcut whatever you'd like.
+    6.  Now you can double click on the shortcut to launch the app
 
 
 # Notes
+FOR DEVELOPERS
+`inspectWindow.bat`
 
-inspectWindow.bat
-
-Opens the ui in a chrome dev tools type environment
+\> Opens the ui in a chrome dev tools type environment
