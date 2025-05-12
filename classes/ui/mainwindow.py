@@ -4,14 +4,21 @@ from PyQt6.QtCore import * # Import necessary QtCore modules
 from ..location import loadObjectFromJson                                               # Import the function to load location objects from JSON
 import json
 import sqlite3                                                                            # Import the json library for handling JSON data
+import os
 
 currentLocation = None                                                                 # Initialize a variable to store the current location object
 
 mode = "new"                                                                           # Initialize a variable to track the current mode (new or compare)
 likeLocation = False
 
-with open("user.id", "r") as file:                                                                  # Initialize a boolean to track if the current location is liked
-    currentUser = file.read()                                                                   # Initialize a variable to store the current user's ID
+if os.path.isfile("user.id"): #Check if user.id exists
+
+    with open("user.id", "r") as file:    #If it does open and read the last logged in user
+        currentUser = file.read()         # Save it to the global currentUser var
+else:
+    with open("user.id", "w") as file:  #If it doesnt exist create the file .
+        currentUser = ""
+        file.close()                                                                  # Initialize a variable to store the current user's ID
 
 # Widget Imports
 from .widgets.WeatherWidget import WeatherWidget                                       # Import the WeatherWidget class
