@@ -313,6 +313,8 @@ class MainWindow(QMainWindow):                                                  
 
     def showLogin(self):
         self.stacked_widget.setCurrentWidget(self.loginBox)
+        self.loginBox.show()
+        self.loginUi.show()
 
     def showRegister(self):
         self.stacked_widget.setCurrentWidget(self.registerBox)
@@ -358,7 +360,8 @@ class MainWindow(QMainWindow):                                                  
     
     def switch_to_likes_page(self):
         '''Switched the stacked widget to the liked page'''
-        self.stacked_widget.setCurrentWidget(self.likesWidget)                           # Switch to the LikesWidget page
+        self.stacked_widget.setCurrentWidget(self.likesWidget) 
+        self.likesWidget.titleLabel.setText(f"Liked Locations For {currentUser}")                         # Switch to the LikesWidget page
         self.likesWidget.populateLocations()                                           # Populate the LikesWidget with location data
 
     def handleLocationClicked(self, location_name):
@@ -377,30 +380,48 @@ class MainWindow(QMainWindow):                                                  
         """Handle the heart button click to like/unlike a location."""
         global likeLocation                                        # Access the global likeLocation variable
 
-        with open("heartDB.json", "r") as file:                    # Open the heartDB.json file in read mode
-            contents = json.load(file)                            # Load the contents of the file
-            matched = False                                       # Flag to check if the location is already in the file
+        conn = sqlite3.connect("spot_finder.db")
+        cursor = conn.cursor()
 
-            for item1 in contents:                                # Iterate through the contents
-                if currentLocation.getAddress() == item1["address"]:  # Check if the current location matches
-                    matched = True                                # Set matched to True
+        cursor.execute("""
+            SELECT 1 FROM likes
+            WHERE username = ? AND location_id = ?
+        """, (currentUser, currentLocation.db_id))
+        
+        result = cursor.fetchone()
 
-            if not matched:                                       # If the location is not in the file
-                contents.append({"address": currentLocation.getAddress(), "likers": []})  # Add it
+        if result: #If a like record exists then user likes the location. Delete the record and make heart gray
+            self.heartButton.setIcon(QIcon("classes/ui/imgs/heartEmpty.png"))  # Set the heart icon to empty
+            likeLocation = False 
 
-            for item in contents:                                 # Iterate through the contents again
-                if item["address"] == currentLocation.getAddress():  # Find the current location
-                    if currentUser in item["likers"]:             # If the user has already liked the location
-                        item["likers"].pop(item["likers"].index(currentUser))  # Remove the user from likers
-                        self.heartButton.setIcon(QIcon("classes/ui/imgs/heartEmpty.png"))  # Set the heart icon to empty
-                        likeLocation = False                      # Set likeLocation to False
-                    else:                                         # If the user has not liked the location
-                        item["likers"].append(currentUser)        # Add the user to likers
-                        self.heartButton.setIcon(QIcon("classes/ui/imgs/heart.png"))  # Set the heart icon to filled
-                        likeLocation = True                       # Set likeLocation to True
+            cursor.execute('''
+                DELETE FROM likes
+                WHERE username = ? AND location_id = ?;
+                           ''', (currentUser, currentLocation.db_id))  
+            conn.commit()
 
-        with open("heartDB.json", "w") as file:                   # Open the heartDB.json file in write mode
-            json.dump(contents, file)                            # Save the updated contents to the file
+        else: #If a like record doesnt exists then user doesnt like the location. Make the record and make heart red
+            self.heartButton.setIcon(QIcon("classes/ui/imgs/heart.png"))  # Set the heart icon to filled
+            likeLocation = True   
+
+            cursor.execute("""
+                INSERT INTO likes (username, location_id)
+                VALUES (?, ?)
+            """, (currentUser, currentLocation.db_id))
+            conn.commit()
+        
+        '''for item in contents:                                 # Iterate through the contents again
+            if item["address"] == currentLocation.getAddress():  # Find the current location
+                if currentUser in item["likers"]:             # If the user has already liked the location
+                    item["likers"].pop(item["likers"].index(currentUser))  # Remove the user from likers
+                    self.heartButton.setIcon(QIcon("classes/ui/imgs/heartEmpty.png"))  # Set the heart icon to empty
+                    likeLocation = False                      # Set likeLocation to False
+                else:                                         # If the user has not liked the location
+                    item["likers"].append(currentUser)        # Add the user to likers
+                    self.heartButton.setIcon(QIcon("classes/ui/imgs/heart.png"))  # Set the heart icon to filled
+                    likeLocation = True                       # Set likeLocation to True'''
+
+
 
     def keyPressEvent(self, event):
         """Handle key press events."""
@@ -479,18 +500,7 @@ class MainWindow(QMainWindow):                                                  
                 self.descWidget.setVisible(True)                 # Show description widget
                 self.crimeWidget.setVisible(True)                # Show crime widget
 
-                with open("heartDB.json", "r") as file:          # Open the heart database JSON file
-                    contents = json.load(file)                   # Load JSON data
-                    likeLocation = False                         # Initialize likeLocation flag
-                    for location in contents:                    # Loop through saved locations
-                        if currentLocation.getAddress() == location["address"]:  # Check for address match
-                            if currentUser in location["likers"]:                # Check if user liked it
-                                likeLocation = True
-
-                if likeLocation:
-                    self.heartButton.setIcon(QIcon("classes/ui/imgs/heart.png"))        # Show filled heart
-                else:
-                    self.heartButton.setIcon(QIcon("classes/ui/imgs/heartEmpty.png"))   # Show empty heart
+                
 
         elif mode == "compare":                                 # If the app is in compare mode
             if currentLocation is not None:                     # If a current location exists
@@ -506,6 +516,27 @@ class MainWindow(QMainWindow):                                                  
         if currentLocation != None and currentLocation.getAddress() != "N/A":  # If a valid location exists
             currentLocation.save_to_db(currentUser)                     # Save the location to the database
             currentLocation.save_weather_data()              # Save the weather data for the location
+
+            #Update liked location from DB ANCHOR
+            conn = sqlite3.connect("spot_finder.db")
+            cursor = conn.cursor()
+
+            cursor.execute("""
+                SELECT 1 FROM likes
+                WHERE username = ? AND location_id = ?
+            """, (currentUser, location.db_id))
+            
+            result = cursor.fetchone()
+            print(f"{currentUser, location}")
+            print(result)
+
+
+
+
+            if result:
+                self.heartButton.setIcon(QIcon("classes/ui/imgs/heart.png"))        # Show filled heart
+            else:
+                self.heartButton.setIcon(QIcon("classes/ui/imgs/heartEmpty.png"))   # Show empty heart
 
     def switch_to_home_page(self):
         self.stacked_widget.setCurrentWidget(self.centralWidget)  # Switch to the main/home page

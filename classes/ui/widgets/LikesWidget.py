@@ -2,6 +2,7 @@ from PyQt6.QtGui import *
 from PyQt6.QtWidgets import *
 from PyQt6.QtCore import *
 import json
+import sqlite3
 
 
 '''
@@ -113,32 +114,42 @@ class LikesWidget(QWidget):
     def populateLocations(self):
         from ..mainwindow import clear_layout
         clear_layout(self.combined_layout)
-        with open("heartDB.json", "r") as file:
-            content = json.load(file)
-            for location in content:
-                if self.currentUser in location["likers"]:
-                    newLocationWidget = LocationWidget(mainObj=self.mainWindow, type="button")
-                    newLocationWidget.restOfAddLabel.hide()
-                    newLocationWidget.setStyleSheet('''
-                    QGroupBox {
-                        border-radius: 70px;
-                        padding: 2px;                                  
-                    }''')
 
-                    newLocationWidget.nameLabel.setStyleSheet('''
-                    QPushButton {
-                        color: #A5D6A7;                            
-                    }
-                    QPushButton:hover {
-                        color: white;
-                    }''')
-                    newLocationWidget.nameLabel.setText(location["address"])
-                    newLocationWidget.restOfAddLabel.setText("")
-                    self.combined_layout.addWidget(newLocationWidget, alignment=Qt.AlignmentFlag.AlignHCenter)
-                    newLocationWidget.setMaximumHeight(150)
-                    newLocationWidget.setFixedWidth(600)
-                    newLocationWidget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
-                    newLocationWidget.setContentsMargins(0, 0, 0, 0)
+        conn = sqlite3.connect("spot_finder.db")
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT l.formatted_address
+            FROM likes AS lk
+            JOIN locations AS l ON lk.location_id = l.id
+            WHERE lk.username = ?
+        """, (self.currentUser,))
+        results = cursor.fetchall()
+
+        for location in results:
+
+            newLocationWidget = LocationWidget(mainObj=self.mainWindow, type="button")
+            newLocationWidget.restOfAddLabel.hide()
+            newLocationWidget.setStyleSheet('''
+            QGroupBox {
+                border-radius: 70px;
+                padding: 2px;                                  
+            }''')
+
+            newLocationWidget.nameLabel.setStyleSheet('''
+            QPushButton {
+                color: #A5D6A7;                            
+            }
+            QPushButton:hover {
+                color: white;
+            }''')
+            newLocationWidget.nameLabel.setText(location[0])
+            newLocationWidget.restOfAddLabel.setText("")
+            self.combined_layout.addWidget(newLocationWidget, alignment=Qt.AlignmentFlag.AlignHCenter)
+            newLocationWidget.setMaximumHeight(150)
+            newLocationWidget.setFixedWidth(600)
+            newLocationWidget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+            newLocationWidget.setContentsMargins(0, 0, 0, 0)
                     
 
     def keyPressEvent(self, event):

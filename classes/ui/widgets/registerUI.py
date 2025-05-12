@@ -120,14 +120,17 @@ class registerUI(QWidget):
 
             QMessageBox.information(self, "Success!", f"Registered and logged in as {username}!")
 
-            self.parentStackedWidget.setCurrentWidget(self.centralWidget)
+            
+            
 
-            with open("user.id", "a+") as file:
-                file.seek(0)
+            with open("user.id", "w") as file:
                 file.write(username)
                 file.close()
                 
             self.mainWindow.setCurrentUser(username)
+
+            self.mainWindow.createLocationWidgets()
+            self.parentStackedWidget.setCurrentWidget(self.centralWidget) #Switch to home page upon register
 
         conn.close()
 

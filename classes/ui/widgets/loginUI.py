@@ -110,13 +110,16 @@ class LoginUI(QWidget):
             if hashedPassword == password:
                 QMessageBox.information(self, "Success!", f"Logged in as {username}!")
 
+
+                with open("user.id", "w") as file:
+                    file.write(username)
+                    file.close()
+                self.mainWindow.setCurrentUser(username)
+
+                self.mainWindow.createLocationWidgets()
                 self.parentStackedWidget.setCurrentWidget(self.centralWidget)
 
-                with open("user.id", "a+") as file:
-                    file.seek(0)
-                    self.mainWindow.setCurrentUser(file.read())
-                    file.close()
-            else:
+            else: #If username matches a record but password is incorrect
                 QMessageBox.information(self, "Wrong Password!", f"Password Incorrect (Case Sensitive)")
                 return
 

@@ -1,5 +1,5 @@
 *.env
-cachedLocations.json
+spot_finder.db
 __pycache__
 *.pyc
 *.pyo
