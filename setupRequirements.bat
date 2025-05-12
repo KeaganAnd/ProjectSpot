@@ -1,1 +1,2 @@
-sudo pip install -r "requirements.txt"
+pip install -r "requirements.txt"
+echo. > keys.env

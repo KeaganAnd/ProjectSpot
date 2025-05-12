@@ -15,6 +15,9 @@ def getLocationMap(location: Location) -> str:
     
     writeLog("Getting Map Image")  # Log the start of the map generation process
     
+    if not os.path.exists("functions/generatedImages"):
+        os.makedirs("functions/generatedImages")
+
     # Send a request to the Google Maps Static API to generate a map image
     request = requests.get(
         f"https://maps.googleapis.com/maps/api/staticmap?size=350x300&center={location.getCoordinates()[0]},{location.getCoordinates()[1]}&zoom=10&key={os.getenv('GoogleMapsKey')}",
