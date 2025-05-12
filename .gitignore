@@ -1,5 +1,5 @@
 *.env
-cachedLocations.json
+*.db
 __pycache__
 *.pyc
 *.pyo
