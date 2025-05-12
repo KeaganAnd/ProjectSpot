@@ -38,7 +38,7 @@ class MainWindow(QMainWindow):                                                  
 
     def __init__(self, *args, **kwargs):                                               # Define the constructor for the MainWindow class
         super().__init__(*args, **kwargs)                                               # Call the constructor of the parent class (QMainWindow)
-                                                               # Close the file
+
 
         # Window setup
         self.setWindowTitle("Spot Finder")                                              # Set the title of the main window
@@ -444,18 +444,25 @@ class MainWindow(QMainWindow):                                                  
         self.descWidget.updateLabel(currentLocation)              # Update the description widget
         self.crimeWidget.updateCrime(currentLocation)             # Update the crime widget
 
-        with open("heartDB.json", "r") as file:                   # Open the heartDB.json file in read mode
-            contents = json.load(file)                           # Load the contents of the file
-            likeLocation = False                                 # Reset the likeLocation flag
+        #Update liked location from DB
+        conn = sqlite3.connect("spot_finder.db")
+        cursor = conn.cursor()
 
-            for location in contents:                            # Iterate through the contents
-                if currentLocation.getAddress() == location["address"] and currentUser in location["likers"]:  # Check if the location is liked
-                    likeLocation = True                          # Set likeLocation to True
+        cursor.execute("""
+            SELECT 1 FROM likes
+            WHERE username = ? AND location_id = ?
+        """, (currentUser, location.db_id))
+        
+        result = cursor.fetchone()
 
-        if likeLocation:                                         # If the location is liked
-            self.heartButton.setIcon(QIcon("classes/ui/imgs/heart.png"))  # Set the heart icon to filled
-        else:                                                    # If the location is not liked
-            self.heartButton.setIcon(QIcon("classes/ui/imgs/heartEmpty.png"))  # Set the heart icon to empty
+
+
+
+
+        if result:
+            self.heartButton.setIcon(QIcon("classes/ui/imgs/heart.png"))        # Show filled heart
+        else:
+            self.heartButton.setIcon(QIcon("classes/ui/imgs/heartEmpty.png"))   # Show empty heart
 
         currentLocation.save_to_db(currentUser)                             # Save the location to the database
         currentLocation.save_weather_data()                      # Save the weather data for the location
@@ -515,7 +522,7 @@ class MainWindow(QMainWindow):                                                  
             currentLocation.save_to_db(currentUser)                     # Save the location to the database
             currentLocation.save_weather_data()              # Save the weather data for the location
 
-            #Update liked location from DB ANCHOR
+            #Update liked location from DB
             conn = sqlite3.connect("spot_finder.db")
             cursor = conn.cursor()
 
