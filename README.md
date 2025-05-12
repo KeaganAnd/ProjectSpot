@@ -5,7 +5,7 @@ Team Spot 2025
 
 1. Install [Python](https://www.python.org/downloads/release/python-3133/) (3.13.3 is the version this was created on).
    If you **do not** already have python installed you will need to restart your computer afterwards.
-2. Download source code from [here](https://github.com/KeaganAnd/ProjectSpot).
+2. Download source code from [here](https://github.com/KeaganAnd/ProjectSpot) You can skip this step if you already downloaded from the website.
    1. On the top right click the green *Code* button.
    2. Click "Download Zip"
 3. Extract the downloaded Zip file to a folder where you will use it.
