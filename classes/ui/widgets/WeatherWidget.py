@@ -58,7 +58,6 @@ class WeatherWidget(QGroupBox):
     def updateWeatherLabels(self, location):
         if location != None:
             self.tempLabel.setText(f"{str(int(location.getTemperature()))}°F")
-            location.jsonify()
             weatherPixmap = QPixmap('classes/ui/imgs/weatherIcons/sun.png')
             self.weatherImageLabel.setPixmap(weatherPixmap)
             self.precipLabel.setText(f"In the last 7 days: \n{location.getPrecipitation():.2f}in of precipitation")

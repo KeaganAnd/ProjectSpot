@@ -1,18 +1,25 @@
-from PyQt6.QtWidgets import (
-    QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QCheckBox,
-    QHBoxLayout, QScrollArea, QMessageBox
-)
-from PyQt6.QtGui import QPixmap, QFont
-from PyQt6.QtCore import Qt
+from PyQt6.QtGui import * # Import necessary QtGui modules
+from PyQt6.QtWidgets import * # Import necessary QtWidgets modules
+from PyQt6.QtCore import * # Import necessary QtCore modules
+import sqlite3
+import hashlib
 
 class LoginUI(QWidget):
-    def __init__(self, parentStackedWidget):
+    def __init__(self, parentStackedWidget, centralWidget, mainWindow):
         super().__init__()
         self.setWindowTitle("Account - Login")
         self.resize(500, 600)
+        self.setMaximumHeight(600)
+        self.setMaximumWidth(500)
+        self.setProperty("class","mainWidget")
+        self.setStyleSheet("[class=\"mainWidget\"] {background-color: transparent;} QScrollArea {background-color: transparent}")      
         self.setup_ui()
         self.parentStackedWidget = parentStackedWidget
         self.registerElement = None
+        self.centralWidget = centralWidget
+        self.mainWindow = mainWindow
+
+
 
     def setup_ui(self):
         # Scroll area in case content overflows
@@ -22,6 +29,9 @@ class LoginUI(QWidget):
         layout = QVBoxLayout(scroll_content)
         layout.setContentsMargins(20, 20, 20, 20)
         layout.setSpacing(20)
+
+        scroll_content.setProperty("class","backdrop")
+        scroll_content.setStyleSheet("[class=\"backdrop\"] {border-radius: 15px; background-color: #30343F}")
 
         # Welcome image and title
         image_label = QLabel()
@@ -79,16 +89,45 @@ class LoginUI(QWidget):
         username = self.username_input.text().strip()
         password = self.password_input.text()
 
+        hashedPassword = hashlib.sha256()
+        hashedPassword.update(password.encode())
+        hashedPassword = hashedPassword.hexdigest()
+
         if not username or not password:
             QMessageBox.warning(self, "Login Failed", "Please enter both username and password.")
             return
 
-        # Simulate successful login (replace with real database check)
+        conn = sqlite3.connect('spot_finder.db')
+        cursor = conn.cursor()
         
+        # Query for the user
+        cursor.execute("SELECT password FROM users WHERE username = ?", (username,))
+        row = cursor.fetchone()
+
+        if row:
+            password = row[0]
+
+            if hashedPassword == password:
+                QMessageBox.information(self, "Success!", f"Logged in as {username}!")
+
+                self.parentStackedWidget.setCurrentWidget(self.centralWidget)
+
+                with open("user.id", "a+") as file:
+                    file.seek(0)
+                    self.mainWindow.setCurrentUser(file.read())
+                    file.close()
+            else:
+                QMessageBox.information(self, "Wrong Password!", f"Password Incorrect (Case Sensitive)")
+                return
+
+        else:
+            QMessageBox.information(self, "Doesn't exist", f"The user {username} doesn't exist! Please check your spelling or sign up.")
+            return
+
+        conn.close()
+                
 
         
-
-        QMessageBox.information(self, "Success", f"Welcome back, {username}!")
         self.close()
 
     def open_register_page(self):  

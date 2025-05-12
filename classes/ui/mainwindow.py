@@ -2,13 +2,16 @@ from PyQt6.QtGui import * # Import necessary QtGui modules
 from PyQt6.QtWidgets import * # Import necessary QtWidgets modules
 from PyQt6.QtCore import * # Import necessary QtCore modules
 from ..location import loadObjectFromJson                                               # Import the function to load location objects from JSON
-import json                                                                            # Import the json library for handling JSON data
+import json
+import sqlite3                                                                            # Import the json library for handling JSON data
 
 currentLocation = None                                                                 # Initialize a variable to store the current location object
 
 mode = "new"                                                                           # Initialize a variable to track the current mode (new or compare)
-likeLocation = False                                                                  # Initialize a boolean to track if the current location is liked
-currentUser = None                                                                   # Initialize a variable to store the current user's ID
+likeLocation = False
+
+with open("user.id", "r") as file:                                                                  # Initialize a boolean to track if the current location is liked
+    currentUser = file.read()                                                                   # Initialize a variable to store the current user's ID
 
 # Widget Imports
 from .widgets.WeatherWidget import WeatherWidget                                       # Import the WeatherWidget class
@@ -22,15 +25,13 @@ from .widgets.LocationWidget import LocationWidget                              
 from .widgets.loginUI import LoginUI
 from .widgets.registerUI import registerUI
 
+from ..location import Location
+
 class MainWindow(QMainWindow):                                                          # Define the main application window class, inheriting from QMainWindow
 
     def __init__(self, *args, **kwargs):                                               # Define the constructor for the MainWindow class
         super().__init__(*args, **kwargs)                                               # Call the constructor of the parent class (QMainWindow)
-
-        with open("user.id", "r") as file:                                             # Open the "user.id" file in read mode
-            global currentUser                                                         # Declare the global currentUser variable to be modified
-            currentUser = file.read()                                                  # Read the user ID from the file
-            file.close()                                                               # Close the file
+                                                               # Close the file
 
         # Window setup
         self.setWindowTitle("Spot Finder")                                              # Set the title of the main window
@@ -75,7 +76,7 @@ class MainWindow(QMainWindow):                                                  
         self.createLocationWidgets()                                                    # Call a method to create widgets for cached locations
 
         # Change widget elements
-        self.searchBar.setPlaceholderText("Where's Your Next Spot?")                     # Set the placeholder text for the search bar
+        self.searchBar.setPlaceholderText(f"Where's Your Next Spot?")                    # Set the placeholder text for the search bar
 
         # Add Widgets to layouts
         self.topLayout.addWidget(self.titleLabel)                                       # Add the title label to the top layout
@@ -260,56 +261,100 @@ class MainWindow(QMainWindow):                                                  
         self.profileButton.setGeometry(10,10,75,75)
 
 
-        #Login/Registration Widget
-
-        self.login_register_stacked = QStackedWidget()
-        self.login_register_stacked.resize(500, 600)
 
         #Login
-        
-        self.loginUi = LoginUI(self.login_register_stacked)
-        self.registerUi = registerUI(self.login_register_stacked)
 
-        self.loginUi.registerElement = self.registerUi #Give elements the other object so they can switch between eachother
-        self.registerUi.loginElement = self.loginUi
+        self.loginBox = QWidget()            #Boxes to store each widget
+        self.registerBox = QWidget()         #so that they can center in the window
 
-        self.login_register_stacked.addWidget(self.loginUi)
-        self.login_register_stacked.addWidget(self.registerUi)
+        self.loginBoxLayout = QHBoxLayout()
+        self.registerBoxLayout = QHBoxLayout()
 
-        
+        self.loginBox.setLayout(self.loginBoxLayout)
+        self.registerBox.setLayout(self.registerBoxLayout) 
 
-        # Default page to show
-        self.stacked_widget.setCurrentWidget(self.centralWidget)                       # Set the home screen as the default page
+        self.loginBoxLayout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.registerBoxLayout.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
+
+
+        self.loginUi = LoginUI(self.stacked_widget, self.centralWidget, self)
+        self.registerUi = registerUI(self.stacked_widget, self.centralWidget, self)
+
+        self.loginBoxLayout.addWidget(self.loginUi)
+        self.registerBoxLayout.addWidget(self.registerUi)
+
+        self.loginUi.registerElement = self.registerBox #Give elements the other object so they can switch between eachother
+        self.registerUi.loginElement = self.loginBox
+
+
+
+        self.stacked_widget.addWidget(self.loginBox)
+        self.stacked_widget.addWidget(self.registerBox)
+
+        with open("user.id", "a+") as file:
+            file.seek(0)  # Move to the start of the file
+            contents = file.read()
+            if len(contents) == 0:
+                self.stacked_widget.setCurrentWidget(self.registerBox) #If no ID is found prompt user to login or register
     
+            else:
+                # Default page to show
+                self.setCurrentUser(contents)
+                self.stacked_widget.setCurrentWidget(self.centralWidget)   #Otherwise bring to home page
+                
+            file.close()                    # Set the home screen as the default page
+
+        self.searchBar.setPlaceholderText(f"Where's Your Next Spot {currentUser}?")
+
+    def setCurrentUser(self, id):
+        global currentUser
+        currentUser = id
+
     def showLogin(self):
-        self.login_register_stacked.show()
-        self.login_register_stacked.setCurrentWidget(self.loginUi)
+        self.stacked_widget.setCurrentWidget(self.loginBox)
+
+    def showRegister(self):
+        self.stacked_widget.setCurrentWidget(self.registerBox)
 
     def createLocationWidgets(self):
-        try: #Opens json file, parses it, and generates the form for the user to select a location
-            with open("cachedLocations.json", "r") as file:                               # Open the cached locations file
-                clear_layout(self.bottomLayout)                                           # Clear the layout to prevent duplicate widgets
-                loadedFile = json.load(file)                                               # Load the JSON data from the file
-                
-                for location in loadedFile:                                               # Iterate over each location in the loaded data
-                    locationObject = loadObjectFromJson(location)                         # Convert the JSON data to a Location object
-                    newLocoWidget = LocationWidget()                                     # Create a new LocationWidget
-                    
-                    self.bottomLayout.addWidget(newLocoWidget)                            # Add the LocationWidget to the layout
-                    newLocoWidget.updateLocationLabels(locationObject)                    # Update the labels in the LocationWidget with location data
-                    newLocoWidget.locationClickedSignal.connect(self.handleLocationClicked) # Connect the widget's signal to the handler
-                file.close()                                                            # Close the file
 
-            likedLocationsButton = LocationWidget()                                     # Create a LocationWidget for liked locations
-            self.bottomLayout.addWidget(likedLocationsButton)                             # Add the liked locations button to the layout
-             
-            likedLocationsButton.updateLocationLabels(currentLocation, True)                # Update the labels, indicating it's for liked locations
 
-            likedLocationsButton.nameLabel.clicked.connect(self.switch_to_likes_page)      # Connect the click signal to show liked locations
+        clear_layout(self.bottomLayout)                                           # Clear the layout to prevent duplicate widgets
 
-        except FileNotFoundError: #This occurs if the user has not searched yet
-            pass
+        
+        conn = sqlite3.connect('spot_finder.db')
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT l.formatted_address
+            FROM searches s
+            JOIN locations l ON s.location_id = l.id
+            WHERE s.username = ?
+            ORDER BY l.search_date DESC
+            LIMIT 4;
+        """, (currentUser,))
+
+        results = cursor.fetchall()
+
+
+        for address in results:                                               # Iterate over each location in the loaded data
+            
+            newLocoWidget = LocationWidget()                                     # Create a new LocationWidget
+            
+
+            self.bottomLayout.addWidget(newLocoWidget)                            # Add the LocationWidget to the layout
+            newLocoWidget.updateLocationLabels(Location(address=address[0]))                    # Update the labels in the LocationWidget with location data
+            newLocoWidget.locationClickedSignal.connect(self.handleLocationClicked) # Connect the widget's signal to the handler                                                       # Close the file
+
+        likedLocationsButton = LocationWidget()                                     # Create a LocationWidget for liked locations
+        self.bottomLayout.addWidget(likedLocationsButton)                             # Add the liked locations button to the layout
+            
+        likedLocationsButton.updateLocationLabels(currentLocation, True)                # Update the labels, indicating it's for liked locations
+
+        likedLocationsButton.nameLabel.clicked.connect(self.switch_to_likes_page)      # Connect the click signal to show liked locations
+
+
     
     def switch_to_likes_page(self):
         '''Switched the stacked widget to the liked page'''
@@ -393,7 +438,7 @@ class MainWindow(QMainWindow):                                                  
         else:                                                    # If the location is not liked
             self.heartButton.setIcon(QIcon("classes/ui/imgs/heartEmpty.png"))  # Set the heart icon to empty
 
-        currentLocation.save_to_db()                             # Save the location to the database
+        currentLocation.save_to_db(currentUser)                             # Save the location to the database
         currentLocation.save_weather_data()                      # Save the weather data for the location
 
     def switch_to_second_page(self):
@@ -453,13 +498,13 @@ class MainWindow(QMainWindow):                                                  
                 self.stacked_widget.setCurrentWidget(self.comparePage)    # Switch to compare page
                 mode = 'new'                                    # Reset mode to new
 
-        self.searchBar.setPlaceholderText("Where's Your Next Spot?")      # Reset placeholder text
+        self.searchBar.setPlaceholderText(f"Where's Your Next Spot {currentUser}?")      # Reset placeholder text
         self.searchBar.setText("")                            # Clear search bar input
         self.blur_effect.setBlurRadius(0)                     # Remove blur effect
         QCoreApplication.processEvents()                      # Process any remaining UI events
 
         if currentLocation != None and currentLocation.getAddress() != "N/A":  # If a valid location exists
-            currentLocation.save_to_db()                     # Save the location to the database
+            currentLocation.save_to_db(currentUser)                     # Save the location to the database
             currentLocation.save_weather_data()              # Save the weather data for the location
 
     def switch_to_home_page(self):
@@ -469,6 +514,7 @@ class MainWindow(QMainWindow):                                                  
         self.titleLabel.setText("Spot Finder")                     # Reset the main title label
         global likeLocation                                        # Use global likeLocation variable
         likeLocation = False                                       # Reset like state
+        self.searchBar2.setPlaceholderText(f"Where's Your Next Spot {currentUser}?") #ANCHOR
 
 def clear_layout(layout):
     while layout.count():                                         # While layout has items

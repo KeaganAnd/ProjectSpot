@@ -68,58 +68,56 @@ class Location:
                 f"Precipitation: {self._precipitation}\n"
                 f"Current Time: {self._currentTime}")
 
-    def jsonify(self):
-        """Adds this location to the cachedLocations.json file."""
-        filePath = f"{os.path.join(os.path.dirname(os.path.dirname(__file__)), 'cachedLocations.json')}"
 
-        data = {
-            "address": self._address,
-            "Coordinates": self._coordinates,
-            "Temperature": self._temperature,
-            "Precipitation": self._precipitation,
-            "Current Time": self._currentTime,
-            "Country": self._country,
-            "State": self._state
-        }
 
-        try:
-            currentLocations = [data]
-            with open(filePath, "r") as file:
-                loadedFile = json.load(file)
 
-                for location in loadedFile:
-                    if location["Coordinates"] != self._coordinates:
-                        currentLocations.append(location)
+        
 
-            if len(currentLocations) > 4:
-                currentLocations.pop(4)  # Only allow 4 locations to be saved
-
-            with open(filePath, "w") as file:
-                jsonObject = json.dumps(currentLocations, indent=4)
-                file.write(jsonObject)
-
-        except FileNotFoundError:
-            with open(filePath, "w") as file:
-                jsonObject = json.dumps([data], indent=4)
-                file.write(jsonObject)
-
-    def save_to_db(self):
+    def save_to_db(self, currentUser):
         """Saves the location to the database."""
         with get_db_connection() as conn:
             cursor = conn.cursor()
-            cursor.execute('''
-                INSERT INTO locations 
-                (formatted_address, latitude, longitude, country, state)
-                VALUES (?, ?, ?, ?, ?)
-                RETURNING id
-            ''', (
+
+            # 1. Check if the row already exists
+            cursor.execute("""
+                SELECT id FROM locations
+                WHERE formatted_address = ?
+                AND latitude = ?
+                AND longitude = ?
+                AND country = ?
+                AND state = ?
+            """, (
                 self._address,
                 self._coordinates[0],
                 self._coordinates[1],
                 self._country,
                 self._state
             ))
-            self.db_id = cursor.fetchone()[0]  # Store the database ID
+
+            row = cursor.fetchone()
+
+            if row:
+                self.db_id = row[0]
+            else:
+                # 2. Insert and get the new ID
+                cursor.execute("""
+                    INSERT INTO locations (formatted_address, latitude, longitude, country, state)
+                    VALUES (?, ?, ?, ?, ?)
+                """, (
+                    self._address,
+                    self._coordinates[0],
+                    self._coordinates[1],
+                    self._country,
+                    self._state
+                ))
+                self.db_id = cursor.lastrowid
+
+
+            cursor.execute("""
+            INSERT OR IGNORE INTO searches (username, location_id)
+            VALUES (?, ?);
+            """, (currentUser, self.db_id))
+
             conn.commit()
             return self.db_id
 

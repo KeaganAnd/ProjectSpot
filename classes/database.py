@@ -37,6 +37,33 @@ def init_db():
             FOREIGN KEY (location_id) REFERENCES locations(id)
         )''')
         
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            username TEXT PRIMARY KEY,
+            password TEXT NOT NULL
+        )''')
+
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS searches (
+            username TEXT,
+            location_id INTEGER,
+            FOREIGN KEY (username) REFERENCES users(username),
+            FOREIGN KEY (location_id) REFERENCES locations(id)
+        
+        )''')
+
+        cursor.execute('''
+            CREATE UNIQUE INDEX IF NOT EXISTS idx_unique_user_location ON searches(username, location_id);
+        ''')
+
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS likes (
+            username TEXT,
+            location_id INTEGER,
+            FOREIGN KEY (username) REFERENCES users(username),
+            FOREIGN KEY (location_id) REFERENCES locations(id)
+        )''')
+
         conn.commit()
 
 def load_location_data(location_id):

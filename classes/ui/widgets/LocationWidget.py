@@ -59,16 +59,9 @@ class LocationWidget(QGroupBox):
     
     def clickedLocationBudget(self):
         if self._type == "normal":
-            try:
-                with open("cachedLocations.json", "r") as file:
-                    loadedFile = json.load(file)
 
-                    for location in loadedFile:
-                        if location["address"].find(self.nameLabel.text()) != -1:
-                            self.locationClickedSignal.emit(self.nameLabel.text()) # Emit signal
-                            return #stop searching after finding the first match
-            except FileNotFoundError:
-                pass
+            self.locationClickedSignal.emit(self.nameLabel.text()) # Emit signal
+
         else:
             self._mainObj.searchBar.setText(self.nameLabel.text())
             self._mainObj.switch_to_second_page()

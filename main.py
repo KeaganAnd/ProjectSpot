@@ -29,8 +29,7 @@ from classes.database import init_db
 '''Debug Imports'''
 from functions.logHandler import writeLog
 
-'''UUID'''
-import uuid
+
 
 load_dotenv("keys.env")  # Loads keys from keys.env | Keys can be accessed with os.getenv("KEYNAME")
 
@@ -115,13 +114,8 @@ if __name__ == "__main__":
 
     writeLog("Program Started")  # Log program start
 
-    # Generate user ID if it doesn't already exist
-    with open("user.id", "a+") as file:
-        file.seek(0)  # Move to the start of the file
-        contents = file.read()
-        if len(contents) == 0:
-            file.write(str(uuid.uuid4()))  # Write a new UUID if the file is empty
-        file.close()
+    
+    
 
     init_db()  # Initialize the database when the app starts
     app = QApplication(sys.argv)
@@ -131,6 +125,9 @@ if __name__ == "__main__":
     window.show()  # Show the main window
 
     app.exec()  # Execute the application
+
+
+
 
     '''Deletes all generated images'''
     for item in os.listdir("functions/generatedImages"):
