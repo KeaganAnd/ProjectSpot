@@ -335,14 +335,17 @@ class MainWindow(QMainWindow):                                                  
         conn = sqlite3.connect('spot_finder.db')
         cursor = conn.cursor()
 
-        cursor.execute("""
-            SELECT l.formatted_address
-            FROM searches s
-            JOIN locations l ON s.location_id = l.id
-            WHERE s.username = ?
-            ORDER BY l.search_date DESC
-            LIMIT 4;
-        """, (currentUser,))
+        cursor.execute('''
+        SELECT s.username, s.search_date, l.formatted_address
+        FROM (
+            SELECT username, search_date, location_id
+            FROM searches
+            WHERE username = ?
+            ORDER BY search_date DESC
+            LIMIT 4
+        ) s
+        JOIN locations l ON s.location_id = l.id;
+    ''', (currentUser,))
 
         results = cursor.fetchall()
 
@@ -353,7 +356,7 @@ class MainWindow(QMainWindow):                                                  
             
 
             self.bottomLayout.addWidget(newLocoWidget)                            # Add the LocationWidget to the layout
-            newLocoWidget.updateLocationLabels(Location(address=address[0]))                    # Update the labels in the LocationWidget with location data
+            newLocoWidget.updateLocationLabels(Location(address=address[2]))                    # Update the labels in the LocationWidget with location data
             newLocoWidget.locationClickedSignal.connect(self.handleLocationClicked) # Connect the widget's signal to the handler                                                       # Close the file
 
         likedLocationsButton = LocationWidget()                                     # Create a LocationWidget for liked locations

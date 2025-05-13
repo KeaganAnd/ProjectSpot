@@ -47,9 +47,10 @@ def init_db():
         CREATE TABLE IF NOT EXISTS searches (
             username TEXT,
             location_id INTEGER,
+            search_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (username) REFERENCES users(username),
             FOREIGN KEY (location_id) REFERENCES locations(id)
-        
+            
         )''')
 
         cursor.execute('''

@@ -113,10 +113,15 @@ class Location:
                 self.db_id = cursor.lastrowid
 
 
-            cursor.execute("""
-            INSERT OR IGNORE INTO searches (username, location_id)
+            cursor.execute('''
+            DELETE FROM searches
+            WHERE username = ? AND location_id = ?;
+            ''', (currentUser, self.db_id))
+
+            cursor.execute('''
+            INSERT INTO searches (username, location_id)
             VALUES (?, ?);
-            """, (currentUser, self.db_id))
+            ''', (currentUser, self.db_id))
 
             conn.commit()
             return self.db_id
