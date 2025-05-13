@@ -11,12 +11,13 @@ logsInDir = os.listdir("logs") #Fetches all logs from the log folder
 
 if len(logsInDir) >= maxLogs:
     for log in logsInDir[:-(maxLogs-1)]: #Logs fetched with newest ones first in list.
-        os.remove(f"logs/{log}")         # Gets rid of any log that isnt the 10 most recent
+        if log != "latest.log":
+            os.remove(f"logs/{log}")         # Gets rid of any log that isnt the 10 most recent
 
 
 for log in logsInDir:
     if log == "latest.log":                     #Looks for the last sessions log being latest.log
-        with open(f"logs/{log}", "r") as log:
+        with open(f"logs/latest.log", "r") as log:
             firstLine = log.readline()          #Reads the first line which has the date the file was created
         try:
             os.rename(f"logs/latest.log", f"logs/{firstLine[:firstLine.index("|")-1]}.log") #Renames the latest log to its date and time created
