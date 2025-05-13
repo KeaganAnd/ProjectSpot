@@ -36,10 +36,73 @@
             <div class="dwnld__content">
                 <h1>Spot Finder</h1>
                 <p>Are you ready to make smarter travel and relocation choices? Let Spot Finder lead the way.</p>
-                <a href="test.py" download class="dwnld__btn">DOWNLOAD NOW</a>
+                <a href="https://github.com/KeaganAnd/ProjectSpot/zipball/master/" download class="dwnld__btn">DOWNLOAD NOW</a>
             </div>
         </div>
     </div>
+
+    <div class="instructions">
+  <div class="instructions__container">
+    <h2>Installation Instructions</h2>
+    <ol>
+      <li>Install Python <strong>3.13.3</strong> (the version this was created on).
+        <ul>
+          <li>If you do not already have Python installed, you will need to restart your computer afterwards.</li>
+        </ul>
+      </li>
+      <li>Download source code from GitHub. (Skip if already downloaded from the website.)
+        <ul>
+          <li>On the top right, click the green <strong>Code</strong> button.</li>
+          <li>Click <strong>"Download ZIP"</strong>.</li>
+          <li>Extract the downloaded ZIP file to a folder where you will use it.</li>
+        </ul>
+      </li>
+      <li>Open your new folder.</li>
+      <li>Run <code>setupRequirements.bat</code>.
+        <ul>
+          <li>Windows may mark this file as unsafe since it is a .bat file. If this happens follow the steps below:</li>
+          <li>Click <strong>"More info"</strong>.</li>
+          <li>Click <strong>"Run Anyway"</strong>.</li>
+          <li>This file simply runs a pip command to download the required Python modules (from <code>requirements.txt</code>) and creates a file called <code>keys.env</code>.</li>
+        </ul>
+      </li>
+      <li>Wait until the command window disappears — this means setup is complete.</li>
+      <li>Open <code>keys.env</code> in Notepad.</li>
+      <li>Get your API keys. You will need four:
+        <ul>
+          <li>Google Maps</li>
+          <li>US Census</li>
+          <li>Gemini</li>
+          <li>FBI key is a public key and is already included</li>
+        </ul>
+      </li>
+      <li>Paste the following into your <code>keys.env</code> file (replace <code>KEY</code> with your actual keys):
+        <pre>
+GoogleMapsKey=KEY
+USCensus=KEY
+FBI=iiHnOKfno2Mgkt5AynpvPpUQTEyxE77jo1RU8PIv
+GEMINI=KEY
+        </pre>
+      </li>
+      <li>Start the program:
+        <ul>
+          <li>Double-click <code>run.bat</code>, or</li>
+          <li>From the command line, run: <code>python -u main.py</code></li>
+        </ul>
+      </li>
+      <li>(Optional) Create a desktop shortcut:
+        <ul>
+          <li>Right-click where you want the shortcut (e.g., your desktop).</li>
+          <li>Hover over <strong>New</strong> &gt; click <strong>Shortcut</strong>.</li>
+          <li>Navigate to the folder you downloaded and select <code>run.bat</code>.</li>
+          <li>Name the shortcut whatever you'd like.</li>
+          <li>You can now double-click the shortcut to launch the app.</li>
+        </ul>
+      </li>
+    </ol>
+  </div>
+</div>
+
 
     <script src="app.js"></script>
 </body>

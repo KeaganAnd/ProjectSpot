@@ -415,12 +415,12 @@
     z-index: 1;
 }
 .about__container {
-    position: relative; /* Makes sure it's above the ::before */
+    position: relative;
     z-index: 2;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center; /* Center vertically */
+    justify-content: center;
     text-align: center;
     max-width: 1100px;
     margin: 0 auto;
@@ -455,8 +455,8 @@
     background-position: center;
     background-repeat: no-repeat;
     height: 100vh;
-    z-index: 0; /* optional for clarity */
-    overflow: hidden; /* in case content bleeds outside */
+    z-index: 0;
+    overflow: hidden;
 }
 .dwnld__container {
     display: grid;
@@ -478,7 +478,7 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-size: 100%;
-    margin-bottom: 10px;
+    margin-bottom: 40px;
     -webkit-text-stroke: 1px #8FB98F;
 }
 .dwnld__content p {
@@ -503,4 +503,81 @@
 .dwnld__btn:hover {
     color: #E0FFE1;
     transform: scale(1.075);
+}
+
+.instructions {
+    background: linear-gradient(
+        to bottom,
+        #8E8B62 0%,
+        #E0FFE1 5%,
+        #E0FFE1 100%
+    );
+    padding: 80px 20px;
+    color: #131313;
+}
+
+.instructions__container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 30px;
+    line-height: 1.7;
+}
+
+.instructions__container h2 {
+    font-size: 3.5rem;
+    background: -webkit-linear-gradient(45deg, #131313, #A2D1A2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 100%;
+    margin-bottom: 40px;
+    text-align: center;
+}
+
+.instructions ol {
+    counter-reset: instruction-counter;
+    list-style: none;
+    padding-left: 0;
+}
+
+.instructions ol > li {
+    counter-increment: instruction-counter;
+    margin-bottom: 30px;
+    padding-left: 25px;
+    position: relative;
+}
+
+.instructions ol > li::before {
+    content: counter(instruction-counter) ".";
+    position: absolute;
+    left: 0;
+    color: #8FB98F;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.instructions ul {
+    list-style-type: disc;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    margin-left: 20px;
+}
+
+.instructions code {
+    background-color: #131313;
+    color: #f1fcf1;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.95rem;
+    font-family: monospace;
+}
+
+.instructions pre {
+    background-color: #393939;
+    padding: 15px;
+    border-left: 4px solid #8FB98F;
+    border-radius: 6px;
+    overflow-x: auto;
+    font-family: monospace;
+    font-size: 0.95rem;
+    color: #F0B768;
 }
