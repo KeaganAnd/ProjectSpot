@@ -95,20 +95,18 @@ class LoginUI(QWidget):
         self.close()
 
     def open_forgot_password(self):
-        print("Opening Forgot Password UI...")  # 调试输出
-        from classes.ui.forgot_password_ui import ForgotPasswordUI  # 延迟导入
-
-        # 创建 ForgotPasswordUI 窗口实例
+        print("Opening Forgot Password UI...")  
+        from classes.ui.forgot_password_ui import ForgotPasswordUI  
+        
         forgot_window = ForgotPasswordUI(self)
         forgot_window.setWindowModality(Qt.WindowModality.NonModal)
         forgot_window.setWindowFlag(Qt.WindowType.Window)
         forgot_window.setFixedSize(300, 150)
 
-        # 将窗口居中显示
         parent_geometry = self.geometry()
         center_x = parent_geometry.x() + (parent_geometry.width() - forgot_window.width()) // 2
         center_y = parent_geometry.y() + (parent_geometry.height() - forgot_window.height()) // 2
         forgot_window.move(center_x, center_y)
     
-        print("Showing Forgot Password UI...")  # 调试输出
+        print("Showing Forgot Password UI...") 
         forgot_window.show()
