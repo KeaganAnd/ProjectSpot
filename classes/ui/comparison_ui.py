@@ -44,39 +44,39 @@ class ComparisonUI(QDialog):
         self.table.setTextElideMode(Qt.TextElideMode.ElideNone)
         self.scroll_area.setWidget(self.table)
 
-        # Buttons layout - 只保留下载和分享按钮
+        # Buttons layout 
         button_layout = QHBoxLayout()
-        button_layout.setSpacing(15)  # 增加按钮间距
-        button_layout.setContentsMargins(0, 10, 0, 5)  # 上下添加更多间距
+        button_layout.setSpacing(15)  
+        button_layout.setContentsMargins(0, 10, 0, 5)  
 
         # Define button style 
         button_style = """
             QPushButton {
-                background-color: #3a9d6e;  /* 深绿色 */
-                color: white;  /* 白色文字 */
-                font-weight: bold;  /* 粗体文字 */
-                border: none;  /* 无边框 */
-                border-radius: 6px;  /* 圆角 */
-                padding: 10px 20px;  /* 内边距增加 */
-                font-size: 14px;  /* 字体大小增加 */
-                min-width: 120px;  /* 最小宽度 */
-                min-height: 40px;  /* 最小高度 */
+                background-color: #3a9d6e;  
+                color: white;  
+                font-weight: bold;
+                border: none;  
+                border-radius: 6px;  
+                padding: 10px 20px;  
+                font-size: 14px; 
+                min-width: 120px;  
+                min-height: 40px;  
             }
             QPushButton:hover {
-                background-color: #4aad7e;  /* 悬停时颜色变亮 */
+                background-color: #4aad7e;  
             }
             QPushButton:pressed {
-                background-color: #2e8b57;  /* 按下时颜色变暗 */
+                background-color: #2e8b57; 
             }
         """
         
-        # 下载按钮
+        # Download button
         self.download_btn = QPushButton("Download")
         self.download_btn.clicked.connect(self.download_comparison)
         self.download_btn.setStyleSheet(button_style)
         button_layout.addWidget(self.download_btn)
 
-        # 分享按钮
+        # Share Button
         self.share_btn = QPushButton("Share")
         self.share_btn.clicked.connect(self.share_comparison)
         self.share_btn.setStyleSheet(button_style)
@@ -161,12 +161,12 @@ class ComparisonUI(QDialog):
             }
         """)
         
-        # Table styling - 使用交替的白色和浅绿色背景
+        # Table styling 
         self.table.setStyleSheet("""
             QTableWidget {
-                gridline-color: #a9dfbf;  /* Light green gridlines */
+                gridline-color: #a9dfbf;  
                 background-color: white;
-                alternate-background-color: #e8f5e9;  /* 更浅的绿色作为交替行背景 */
+                alternate-background-color: #e8f5e9;  
             }
             QTableWidget::item {
                 padding: 5px;
@@ -313,19 +313,19 @@ class ComparisonUI(QDialog):
                 header.setMinimumHeight(80)
 
     def download_comparison(self):
-        """下载比较数据为CSV文件"""
+        """Download comparison result"""
         if not self.comparison_result:
             QMessageBox.warning(self, "No Data", "No comparison data to download.")
             return
 
-        # 获取并确保文件名
+        
         try:
-            # 从比较结果中获取两个城市名称用于文件名
+            
             city1_name = self.comparison_result.get("city1", "city1").split(',')[0].strip()
             city2_name = self.comparison_result.get("city2", "city2").split(',')[0].strip()
             default_filename = f"comparison_{city1_name}_vs_{city2_name}.csv"
             
-            # 获取保存路径
+            
             filepath, _ = QFileDialog.getSaveFileName(
                 self, 
                 "Save Comparison as CSV", 
@@ -334,26 +334,26 @@ class ComparisonUI(QDialog):
             )
             
             if not filepath:
-                return  # 用户取消
+                return  
                 
-            # 确保文件名有.csv扩展名
+           
             if not filepath.lower().endswith('.csv'):
                 filepath += '.csv'
                 
             print(f"Saving comparison to: {filepath}")
             
-            # 写入CSV文件
+            
             with open(filepath, 'w', newline='', encoding='utf-8') as csvfile:
                 writer = csv.writer(csvfile)
                 
-                # 写入表头
+                
                 headers = ["City", "Timestamp"]
                 metrics = self.comparison_result.get("metrics", {})
                 for metric in metrics.keys():
                     headers.append(metric)
                 writer.writerow(headers)
                 
-                # 写入第一个城市数据
+               
                 city1 = self.comparison_result.get("city1", "N/A")
                 timestamp = self.comparison_result.get("timestamp", "N/A")
                 row1 = [city1, timestamp]
@@ -363,7 +363,6 @@ class ComparisonUI(QDialog):
                     row1.append(value)
                 writer.writerow(row1)
                 
-                # 写入第二个城市数据
                 city2 = self.comparison_result.get("city2", "N/A")
                 row2 = [city2, timestamp]
                 
@@ -379,21 +378,21 @@ class ComparisonUI(QDialog):
             QMessageBox.critical(self, "Error", f"Failed to download comparison: {str(e)}")
 
     def share_comparison(self):
-        """分享比较结果到社交媒体"""
+        """Share on social media"""
         if not self.comparison_result:
             QMessageBox.warning(self, "No Data", "No comparison data to share.")
             return
 
         try:
-            # 准备分享内容
+            # geT comparison result
             city1 = self.comparison_result.get("city1", "").split(',')[0].strip()
             city2 = self.comparison_result.get("city2", "").split(',')[0].strip()
             
-            # 创建分享文本
+            # create share text
             share_text = f"Check out my city comparison between {city1} and {city2} on Spot Finder!"
             metrics = self.comparison_result.get("metrics", {})
             
-            # 添加温度比较（如果有）
+            # add temp
             temp_key = None
             for key in metrics.keys():
                 if "temperature" in key.lower() or "temp" in key.lower():
@@ -405,7 +404,7 @@ class ComparisonUI(QDialog):
                 temp2 = metrics[temp_key][city2]
                 share_text += f"\n\nTemperature: {city1}: {temp1}°F vs {city2}: {temp2}°F"
             
-            # 添加收入比较（如果有）
+            # add income comparison
             income_key = None
             for key in metrics.keys():
                 if "income" in key.lower():
@@ -421,14 +420,13 @@ class ComparisonUI(QDialog):
                     pass
                     
             share_text += "\n\n#SpotFinder #CityComparison"
-            
-            # URL编码文本用于分享链接
+                        
             encoded_text = urllib.parse.quote(share_text)
             
-            # 创建分享菜单 - 使用黑色粗体字和交替颜色背景
+            # Share menu
             share_menu = QMenu(self)
             
-            # 设置菜单整体样式 - 黑色粗体字和增加每项高度
+            # Set Menu Style
             share_menu.setStyleSheet("""
                 QMenu {
                     font-family: Arial;
@@ -444,17 +442,17 @@ class ComparisonUI(QDialog):
                 QMenu::item:selected {
                     background-color: #a9dfbf;
                 }
-                /* 为偶数项设置浅绿色背景 */
+                
                 QMenu::item:!selected:nth-child(even) {
                     background-color: #e8f5e9;
                 }
-                /* 为奇数项设置白色背景 */
+               
                 QMenu::item:!selected:nth-child(odd) {
                     background-color: white;
                 }
             """)
             
-            # Twitter选项
+            # Twitter Option
             twitter_action = share_menu.addAction("Share on Twitter/X")
             twitter_action.triggered.connect(
                 lambda: QDesktopServices.openUrl(
@@ -462,7 +460,7 @@ class ComparisonUI(QDialog):
                 )
             )
             
-            # Facebook选项
+            # Facebook Option
             facebook_action = share_menu.addAction("Share on Facebook")
             facebook_action.triggered.connect(
                 lambda: QDesktopServices.openUrl(
@@ -470,7 +468,7 @@ class ComparisonUI(QDialog):
                 )
             )
             
-            # LinkedIn选项
+            # LinkedIn Option
             linkedin_action = share_menu.addAction("Share on LinkedIn")
             linkedin_action.triggered.connect(
                 lambda: QDesktopServices.openUrl(
@@ -478,13 +476,13 @@ class ComparisonUI(QDialog):
                 )
             )
             
-            # 复制到剪贴板选项
+            # Copy to clipboard option
             clipboard_action = share_menu.addAction("Copy to Clipboard")
             clipboard_action.triggered.connect(
                 lambda: self._copy_to_clipboard(share_text)
             )
             
-            # 在分享按钮位置显示菜单
+            # Dislay share menu
             share_menu.exec(self.share_btn.mapToGlobal(self.share_btn.rect().bottomLeft()))
             
         except Exception as e:
@@ -492,6 +490,6 @@ class ComparisonUI(QDialog):
             QMessageBox.critical(self, "Share Error", f"Could not share comparison: {str(e)}")
     
     def _copy_to_clipboard(self, text):
-        """将文本复制到剪贴板"""
+        """Copy to clipboard"""
         QApplication.clipboard().setText(text)
         QMessageBox.information(self, "Success", "Comparison copied to clipboard!")
